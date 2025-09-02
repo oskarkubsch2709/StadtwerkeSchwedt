@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Startseite</title>
+  <style>
+   * {
+     box-sizing: border-box;
+   }
+
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+    }
+
+    /* Grüner Balken als Container */
+    .green-bar {
+      width: 100%;
+      background-color: #008b45;
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 40px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .bar-top {
+      height: auto;
+    }
+
+    .bar-bottom {
+      height: auto;
+    }
+
+    /* Navigationsbereich */
+    .nav-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      background-color: #f4f4f4;
+      padding: 10px 40px;
+    }
+
+    .nav-bar img {
+      height: 50px;
+      width: auto;
+      margin-right: 40px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex: 1; /* nimmt gesamte restliche Breite ein */
+      justify-content: center; /* zentriert Links */
+      gap: 30px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .nav-links a:hover {
+      color: #008b45;
+    }
+
+    h1 {
+      margin: 20px 0;
+      color: #008b45;
+      margin-bottom: 4px; /* Abstand unterhalb der Überschrift */
+    }
+
+    h2 {
+      margin: 8px 0;
+      color: #008b45;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+    }
+
+   /* Lauftext-Balken */
+   .ticker-container {
+  width: 100%;
+  background-color: #f4f4f4;   /* gleiche Farbe wie nav-bar */
+  overflow: hidden;
+  border-top: 2px solid #444;
+  border-bottom: 2px solid #444;
+  position: relative;
+  height: 40px; /* Höhe für stabilen Lauftext */
+}
+
+.ticker-text {
+  position: absolute;
+  white-space: nowrap;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  animation: ticker 15s linear infinite;
+}
+
+/* Start: ganz rechts außerhalb, Ende: ganz links außerhalb */
+@keyframes ticker {
+  0%   { transform: translateX(200%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* --- Stationsauswahl --- */
+.station-select-wrap {
+width: 100%;
+max-width: 400px;
+margin: 14px auto 24px;
+text-align: left;
+}
+
+
+.station-select-label {
+display: block;
+font-weight: bold;
+margin-bottom: 6px;
+color: #333;
+}
+
+
+.station-select {
+width: 100%;
+font-size: 16px;
+padding: 10px 14px;
+border: 2px solid #008b45;
+border-radius: 8px;
+outline: none;
+}
+
+
+.station-select:focus { box-shadow: 0 0 0 3px rgba(0,139,69,0.15); }
+
+  </style>
+</head>
+<body>
+  <!-- Grüner Balken mit Text -->
+  <div class="green-bar bar-top">
+    <div>Ein Unternehmen der Stadt Schwedt.</div>
+    <div id="datetime"></div>
+  </div>
+
+  <!-- Inhaltsverzeichnis mit Logo + Links -->
+  <div class="nav-bar">
+    <!-- Logo -->
+    <a href="../../Startseite.html">
+     <img src="../Logo.png" alt="Logo">
+   </a>
+
+    <!-- Links -->
+    <div class="nav-links">
+      <a href="../Aktuelles/Aktuelles.html">Aktuelles</a>
+      <a href="../Fahrplan/Linienfahrplan.html">Linienfahrpläne und Netzplan</a>
+      <a href="#">Abfahrtsanzeigen</a>
+      <a href="#">Tickets / VBB</a>
+      <a href="#">Über den ÖPNV in Schwedt</a>
+    </div>
+  </div>
+
+   <!-- Lauftext -->
+   <div class="ticker-container">
+     <div class="ticker-text">
+       ⚠ Willkommen beim ÖPNV Schwedt – Aktuelle Informationen zu Fahrplänen, Tickets und Abfahrten finden Sie hier!
+     </div>
+   </div>
+
+<h1>Abfahrten</h1>
+<h2>Liveauskünfte</h2>
+
+<!-- Stationsauswahl -->
+<div class="station-select-wrap">
+<label for="stationSelect" class="station-select-label">Station auswählen</label>
+<select id="stationSelect" class="station-select" onchange="(function(s){if(s.value){window.location.href=s.value;}})(this)">
+<option value="" disabled selected>Bitte wählen…</option>
+<option value="Hauptbahnhof/abfahrten_Hauptbahnhof.html">Hauptbahnhof</option>
+<option value="#">Markt</option>
+</select>
+</div>
+
+  <!-- Grüner Balken als Abschluss ganz unten -->
+  <div class="green-bar bar-bottom">
+<div>Ein Unternehmen der Stadt Schwedt.<br><br>Servicenummer: 03567 16966782</div> <br> <div>Öffnungszeiten Kundenzentrum Markt<br>Mo-Fr 08-18 Uhr<br>Sa 09-16 Uhr<br>So geschlossen</div>
+</div>
+
+<script>
+/* Uhrzeit */
+function updateDateTime() {
+  const now = new Date();
+  const options = { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit' 
+  };
+  document.getElementById("datetime").textContent = 
+    now.toLocaleDateString("de-DE", options);
+}
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+// Accordion Funktion
+    const headers = document.querySelectorAll(".accordion-header");
+
+    headers.forEach(header => {
+      header.addEventListener("click", () => {
+        const content = header.nextElementSibling;
+
+        // Nur den angeklickten Bereich ein-/ausklappen
+        content.style.display = 
+          content.style.display === "block" ? "none" : "block";
+      });
+    });
+
+</script>
+</body>
+</html>

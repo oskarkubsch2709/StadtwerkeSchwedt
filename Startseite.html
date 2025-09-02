@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Startseite</title>
+  <style>
+   * {
+     box-sizing: border-box;
+   }
+
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+    }
+
+    /* Grüner Balken als Container */
+    .green-bar {
+      width: 100%;
+      background-color: #008b45;
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 40px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .bar-top {
+      height: auto;
+    }
+
+    .bar-bottom {
+      height: auto;
+    }
+
+    /* Navigationsbereich */
+    .nav-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      background-color: #f4f4f4;
+      padding: 10px 40px;
+    }
+
+    .nav-bar img {
+      height: 50px;
+      width: auto;
+      margin-right: 40px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex: 1; /* nimmt gesamte restliche Breite ein */
+      justify-content: center; /* zentriert Links */
+      gap: 30px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .nav-links a:hover {
+      color: #008b45;
+    }
+
+    h1 {
+      margin: 20px 0;
+      color: #008b45;
+      margin-bottom: 4px; /* Abstand unterhalb der Überschrift */
+    }
+
+    h2 {
+      margin: 8px 0;
+      color: #008b45;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+    }
+
+
+    /* Slideshow */
+    .slideshow {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .slideshow img {
+      max-width: 800px;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+
+      opacity: 1;
+      transition: opacity 1s ease-in-out; /* weiches Überblenden */
+    }
+
+    /* Overlay-Text */
+    .slideshow-text {
+      position: absolute;
+      top: 20%; /* oberes Drittel */
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 36px;
+      font-weight: bold;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+
+      opacity: 1;
+      transition: opacity 1s ease-in-out; /* Text blendet auch weich */
+      pointer-events: none;
+    }
+
+   /* Lauftext-Balken */
+   .ticker-container {
+  width: 100%;
+  background-color: #f4f4f4;   /* gleiche Farbe wie nav-bar */
+  overflow: hidden;
+  border-top: 2px solid #444;
+  border-bottom: 2px solid #444;
+  position: relative;
+  height: 40px; /* Höhe für stabilen Lauftext */
+}
+
+.ticker-text {
+  position: absolute;
+  white-space: nowrap;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  animation: ticker 15s linear infinite;
+}
+
+/* Start: ganz rechts außerhalb, Ende: ganz links außerhalb */
+@keyframes ticker {
+  0%   { transform: translateX(200%); }
+  100% { transform: translateX(-100%); }
+}
+
+  </style>
+</head>
+<body>
+  <!-- Grüner Balken mit Text -->
+  <div class="green-bar bar-top">
+    <div>Ein Unternehmen der Stadt Schwedt.</div>
+    <div id="datetime"></div>
+  </div>
+
+  <!-- Inhaltsverzeichnis mit Logo + Links -->
+  <div class="nav-bar">
+    <!-- Logo -->
+    <a href="Startseite.html">
+     <img src="Startseite/Logo.png" alt="Logo">
+   </a>
+
+    <!-- Links -->
+    <div class="nav-links">
+      <a href="Startseite/Aktuelles/Aktuelles.html">Aktuelles</a>
+      <a href="Startseite/Fahrplan/Linienfahrplan.html">Linienfahrpläne und Netzplan</a>
+      <a href="Startseite/Abfahrten/Abfahrten.html">Abfahrtsanzeigen</a>
+      <a href="#">Tickets / VBB</a>
+      <a href="#">Über den ÖPNV in Schwedt</a>
+    </div>
+  </div>
+
+   <!-- Lauftext -->
+   <div class="ticker-container">
+     <div class="ticker-text">
+       ⚠ Willkommen beim ÖPNV Schwedt – Aktuelle Informationen zu Fahrplänen, Tickets und Abfahrten finden Sie hier!
+     </div>
+   </div>
+
+<h1>Willkommen bei den Stadtwerken Schwedt</h1>
+<h2>Der Nahverkehrsbetreiber in deiner Region für deine Region.</h2>
+
+   <!-- Slideshow -->
+  <div class="slideshow">
+    <!-- nur EIN Bild, das Script wechselt den src -->
+    <img id="slideshow-img" src="Startseite/Tram2.png" alt="Slideshow">
+    <!-- nur EIN Text, das Script wechselt den Inhalt -->
+    <div class="slideshow-text" id="slideshow-text">Herzlich Willkommen</div>
+  </div>
+
+  <!-- Grüner Balken als Abschluss ganz unten -->
+  <div class="green-bar bar-bottom">
+<div>Ein Unternehmen der Stadt Schwedt.<br><br>Servicenummer: 03567 16966782</div> <br> <div>Öffnungszeiten Kundenzentrum Markt<br>Mo-Fr 08-18 Uhr<br>Sa 09-16 Uhr<br>So geschlossen</div>
+</div>
+
+<script>
+/* Uhrzeit */
+function updateDateTime() {
+  const now = new Date();
+  const options = { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit' 
+  };
+  document.getElementById("datetime").textContent = 
+    now.toLocaleDateString("de-DE", options);
+}
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+/* Slideshow */
+const images = [
+  "Startseite/Tram2.png",
+  "Startseite/Tram5.png",
+  "Startseite/Bus1.png"
+];
+
+const texts = [
+  "Steig ein und komm in unser Team!",
+  "Bauarbeiten in Neustadt",
+  "Neue Busse für Schwedt."
+];
+
+let currentIndex = 0;
+const slideshowImg = document.getElementById("slideshow-img");
+const slideshowText = document.getElementById("slideshow-text");
+
+function showSlide(index) {
+  // ausblenden
+  slideshowImg.style.opacity = 0;
+  slideshowText.style.opacity = 0;
+
+  // nach 1s (Dauer des Ausblendens) wechseln und wieder einblenden
+  setTimeout(() => {
+    slideshowImg.src = images[index];
+    slideshowText.textContent = texts[index];
+    slideshowImg.style.opacity = 1;
+    slideshowText.style.opacity = 1;
+  }, 1000);
+}
+
+// alle 5s wechseln
+setInterval(() => {
+  currentIndex = (currentIndex + 1) % images.length;
+  showSlide(currentIndex);
+}, 5000);
+</script>
+</body>
+</html>

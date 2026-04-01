@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Startseite</title>
+  <style>
+   * {
+     box-sizing: border-box;
+   }
+
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+    }
+
+    /* Grüner Balken als Container */
+    .green-bar {
+      width: 100%;
+      background-color: #008b45;
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 40px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .bar-top {
+      height: auto;
+    }
+
+    .bar-bottom {
+      height: auto;
+    }
+
+    /* Navigationsbereich */
+    .nav-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      background-color: #f4f4f4;
+      padding: 10px 40px;
+    }
+
+    .nav-bar img {
+      height: 50px;
+      width: auto;
+      margin-right: 40px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex: 1; /* nimmt gesamte restliche Breite ein */
+      justify-content: center; /* zentriert Links */
+      gap: 30px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .nav-links a:hover {
+      color: #008b45;
+    }
+
+    h1 {
+      margin: 20px 0;
+      color: #008b45;
+      margin-bottom: 4px; /* Abstand unterhalb der Überschrift */
+    }
+
+    h2 {
+      margin: 8px 0;
+      color: #008b45;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+    }
+
+    h3 {
+      margin: 8px 0;
+      color: black;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    h4 {
+      margin: 8px 0;
+      color: black;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+      font-size: 15px;
+    }
+
+
+   /* Lauftext-Balken */
+   .ticker-container {
+  width: 100%;
+  background-color: #f4f4f4;   /* gleiche Farbe wie nav-bar */
+  overflow: hidden;
+  border-top: 2px solid #444;
+  border-bottom: 2px solid #444;
+  position: relative;
+  height: 40px; /* Höhe für stabilen Lauftext */
+}
+
+.ticker-text {
+  position: absolute;
+  white-space: nowrap;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  animation: ticker linear infinite;
+  animation-duration: var(--ticker-speed, 15s); /* Geschwindigkeit einstellbar */
+}
+
+/* Kontinuierlicher Lauftext von rechts nach links */
+@keyframes ticker {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Eingabe */
+.connection-box {
+  background: #f4f4f4;
+  padding: 15px;
+  margin: 20px auto;
+  border-radius: 10px;
+  max-width: 600px;
+}
+
+.connection-box input {
+  padding: 8px;
+  margin: 5px;
+}
+
+.connection-box button {
+  padding: 8px 15px;
+  background-color: #008b45;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+/* Ergebnis */
+.connection {
+  background: white;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.route-step {
+  margin-bottom: 10px;
+}
+
+.line-number {
+  font-weight: bold;
+  color: #008b45;
+}
+
+</style>
+</head>
+<body>
+  <!-- Grüner Balken mit Text -->
+  <div class="green-bar bar-top">
+    <div>Ein Unternehmen der Stadt Schwedt.</div>
+    <div id="datetime"></div>
+  </div>
+
+  <!-- Inhaltsverzeichnis mit Logo + Links -->
+  <div class="nav-bar">
+    <!-- Logo -->
+    <a href="../../index.html">
+     <img src="../Logo.png" alt="Logo">
+   </a>
+
+    <!-- Links -->
+    <div class="nav-links">
+      <a href="../Aktuelles/Aktuelles.html">Aktuelles</a>
+      <a href="../Fahrplan/Linienfahrplan.html">Linienfahrpläne und Netzplan</a>
+      <a href="../Abfahrten/Abfahrten.html">Abfahrtsanzeigen</a>
+      <a href="#">Verbindungsauskunft</a>
+      <a href="../Tickets/Tickets.html">Tickets / VBB</a>
+      <a href="../ÖPNV/ÖPNV.html">Über den ÖPNV in Schwedt</a>
+    </div>
+  </div>
+
+   <!-- Lauftext -->
+   <div class="ticker-container">
+     <div class="ticker-text">
+       Herzlich Willkommen bei den Stadtwerken Schwedt. Hier finden Sie alle wichtigen und aktuellen Informationen rund um Ihren Nahverkehr in Schwedt und Umgebung.
+     </div>
+   </div>
+
+<h1>Verbindungsauskunft</h1>
+<h2>Echtzeitinformationen über Ihre Verbindungen.</h2>
+
+
+<div class="connection-box">
+  <input id="start" placeholder="Start">
+  <input id="ziel" placeholder="Ziel">
+  <input id="zeit" placeholder="HH:MM">
+  <button onclick="findRoute()">Suchen</button>
+
+  <div id="result"></div>
+</div>
+
+  <!-- Grüner Balken als Abschluss ganz unten -->
+  <div class="green-bar bar-bottom">
+<div>Ein Unternehmen der Stadt Schwedt.<br><br>Servicenummer: 03567 16966782</div> <br> <div>Öffnungszeiten Kundenzentrum Markt<br>Mo-Fr 08-18 Uhr<br>Sa 09-16 Uhr<br>So geschlossen</div>
+</div>
+
+<script>
+/* Uhrzeit */
+function updateDateTime() {
+  const now = new Date();
+  const options = { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit' 
+  };
+  document.getElementById("datetime").textContent = 
+    now.toLocaleDateString("de-DE", options);
+}
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+
+// ==========================
+// 🟡 FAHRPLAN (MEHRERE FAHRTEN)
+// ==========================
+const fahrplan = [
+  {
+    linie: "1",
+    richtung: "Zentrum",
+    fahrten: [
+      [
+        {name: "A", time: "08:00"},
+        {name: "B", time: "08:10"},
+        {name: "C", time: "08:20"}
+      ],
+      [
+        {name: "A", time: "09:00"},
+        {name: "B", time: "09:10"},
+        {name: "C", time: "09:20"}
+      ]
+    ]
+  },
+  {
+    linie: "2",
+    richtung: "Hbf",
+    fahrten: [
+      [
+        {name: "B", time: "08:15"},
+        {name: "D", time: "08:25"},
+        {name: "E", time: "08:35"}
+      ]
+    ]
+  },
+  {
+    linie: "3",
+    richtung: "West",
+    fahrten: [
+      [
+        {name: "C", time: "08:25"},
+        {name: "F", time: "08:35"},
+        {name: "E", time: "08:45"}
+      ]
+    ]
+  }
+];
+
+// ==========================
+// Hilfsfunktion
+// ==========================
+function toMin(t) {
+  let [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+// ==========================
+// 🚀 SCHNELLSTE VERBINDUNG
+// ==========================
+function findRoute() {
+  const start = document.getElementById("start").value;
+  const ziel = document.getElementById("ziel").value;
+  const startZeit = toMin(document.getElementById("zeit").value);
+
+  let queue = [];
+  let bestTime = {};
+  let bestPath = null;
+  let bestArrival = Infinity;
+
+  // Startpunkte
+  fahrplan.forEach((line, li) => {
+    line.fahrten.forEach((fahrt, fi) => {
+      fahrt.forEach((stop, si) => {
+        if (stop.name === start && toMin(stop.time) >= startZeit) {
+          queue.push({
+            station: stop.name,
+            time: toMin(stop.time),
+            path: [{
+              type: "start",
+              time: stop.time,
+              station: stop.name
+            }],
+            lineIndex: li,
+            fahrtIndex: fi,
+            stopIndex: si
+          });
+        }
+      });
+    });
+  });
+
+  while (queue.length > 0) {
+
+    queue.sort((a, b) => a.time - b.time);
+    let current = queue.shift();
+
+    if (current.station === ziel) {
+      if (current.time < bestArrival) {
+        bestArrival = current.time;
+        bestPath = current.path;
+      }
+      continue;
+    }
+
+    if (current.time > bestArrival) continue;
+
+let key = current.station + "_" + current.lineIndex + "_" + current.fahrtIndex;
+    if (bestTime[key] && bestTime[key] <= current.time) continue;
+    bestTime[key] = current.time;
+
+    let line = fahrplan[current.lineIndex];
+    let fahrt = line.fahrten[current.fahrtIndex];
+
+    // Weiterfahren
+    for (let i = current.stopIndex + 1; i < fahrt.length; i++) {
+      let next = fahrt[i];
+
+      queue.push({
+        station: next.name,
+        time: toMin(next.time),
+        path: [
+          ...current.path,
+          {
+            type: "ride",
+            line: line.linie,
+            richtung: line.richtung,
+            time: next.time,
+            station: next.name
+          }
+        ],
+        lineIndex: current.lineIndex,
+        fahrtIndex: current.fahrtIndex,
+        stopIndex: i
+      });
+    }
+
+    // Umsteigen
+    fahrplan.forEach((line2, li2) => {
+      line2.fahrten.forEach((fahrt2, fi2) => {
+        fahrt2.forEach((stop2, si2) => {
+
+          if (
+            stop2.name === current.station &&
+            toMin(stop2.time) >= current.time + 2
+          ) {
+            queue.push({
+              station: stop2.name,
+              time: toMin(stop2.time),
+              path: [
+                ...current.path,
+                {
+                  type: "transfer",
+                  station: stop2.name,
+                  time: stop2.time
+                }
+              ],
+              lineIndex: li2,
+              fahrtIndex: fi2,
+              stopIndex: si2
+            });
+          }
+
+        });
+      });
+    });
+  }
+
+  if (bestPath) {
+    displayRoute(bestPath);
+  } else {
+    document.getElementById("result").innerHTML = "Keine Verbindung gefunden";
+  }
+}
+
+// ==========================
+// 📺 ANZEIGE
+// ==========================
+function displayRoute(path) {
+  let html = '<div class="connection">';
+  
+  let lastArrivalTime = null;
+
+  path.forEach((step, index) => {
+
+    // START
+    if (step.type === "start") {
+      html += `<div class="route-step">
+        <b>${step.time}</b> ${step.station}
+      </div>`;
+      lastArrivalTime = step.time;
+    }
+
+    // FAHRT
+    if (step.type === "ride") {
+
+      // Linie anzeigen (immer bei neuer Fahrt)
+      if (index === 0 || path[index - 1].type !== "ride") {
+        html += `<div class="route-step">
+          <span class="line-number">Linie ${step.line}</span> ${step.richtung}
+        </div>`;
+      }
+
+      // Ziel dieser Teilfahrt erkennen
+      let nextStep = path[index + 1];
+
+      if (!nextStep || nextStep.type !== "ride") {
+        html += `<div class="route-step">
+          <b>${step.time}</b> ${step.station}
+        </div>`;
+        lastArrivalTime = step.time;
+      }
+    }
+
+    // UMSTIEG
+    if (step.type === "transfer") {
+
+      let umstieg = toMin(step.time) - toMin(lastArrivalTime);
+
+      html += `<div class="route-step" style="margin:10px 0;">
+        Umstieg ${umstieg} Minuten
+      </div>`;
+
+      // 👉 NEUE ABFAHRT ANZEIGEN (das war vorher dein Problem!)
+      html += `<div class="route-step">
+        <b>${step.time}</b> ${step.station}
+      </div>`;
+    }
+
+  });
+
+  html += "</div>";
+  document.getElementById("result").innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>

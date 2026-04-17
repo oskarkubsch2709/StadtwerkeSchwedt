@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Abfahrtsanzeige XXL</title>
+
+<style>
+body {
+    background: #2b2b2b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    padding: 40px;
+    margin: 0;
+}
+
+.frame {
+    background: #e6e6e6;
+    border: 8px solid #333;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: inset 0 0 10px #aaa, 0 10px 30px rgba(0,0,0,0.6);
+    width: 900px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    margin-bottom: 5px;
+}
+
+.stop-name {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.platform {
+    font-size: 22px;
+}
+
+.header-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 80px;
+    font-size: 18px;
+    margin: 5px 0 10px 0;
+    letter-spacing: 2px;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+/* 🔥 Container für Doppelanzeige */
+.display-container {
+    display: flex;
+    gap: 10px;
+    position: relative;
+}
+
+.display {
+    flex: 1;
+    background: black;
+    padding: 20px;
+    color: #ff9900;
+    font-family: monospace;
+    position: relative;
+    background-image: radial-gradient(#222 1px, transparent 1px);
+    background-size: 4px 4px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 60px 1fr 80px;
+    font-size: 28px;
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+    min-height: 32px;
+}
+
+.row div, .clock {
+    text-shadow:
+        0 0 3px #ff9900,
+        0 0 6px #ff9900,
+        0 0 12px #ff6600;
+}
+
+.blink {
+    animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+.clock {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Scroll */
+.destination {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.scroll-text {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+@keyframes scroll-left {
+    from {
+        transform: translateX(var(--start));
+    }
+    to {
+        transform: translateX(var(--end));
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===================== -->
+<!-- STEIG 1 -->
+<!-- ===================== -->
+
+<div class="frame">
+    <div class="header">
+        <div class="stop-name">Markt</div>
+        <div class="platform">Steig 1</div>
+    </div>
+
+    <div class="header-row">
+        <div>Linie</div>
+        <div>Ziel</div>
+        <div>min</div>
+    </div>
+
+    <div class="display-container">
+        <div class="display">
+            <div id="departures1a"></div>
+        </div>
+        <div class="display">
+            <div id="departures1b"></div>
+        </div>
+        <div class="clock" id="clock1"></div>
+    </div>
+</div>
+
+<!-- ===================== -->
+<!-- STEIG 2 -->
+<!-- ===================== -->
+
+<div class="frame">
+    <div class="header">
+        <div class="stop-name">Markt</div>
+        <div class="platform">Steig 2</div>
+    </div>
+
+    <div class="header-row">
+        <div>Linie</div>
+        <div>Ziel</div>
+        <div>min</div>
+    </div>
+
+    <div class="display-container">
+        <div class="display">
+            <div id="departures2a"></div>
+        </div>
+        <div class="display">
+            <div id="departures2b"></div>
+        </div>
+        <div class="clock" id="clock2"></div>
+    </div>
+</div>
+
+<script>
+
+// =======================
+// Fahrpläne
+// =======================
+
+  const weekdayTimetable = [
+    { line: "1", destination: "Neustadt", time: "00:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "01:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "02:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "03:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "04:16", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "05:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "05:32", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "05:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "06:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "06:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "06:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "06:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "07:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "07:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "07:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "07:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "08:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "08:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "08:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "08:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "09:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "09:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "09:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "09:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "10:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "10:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "10:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "10:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "11:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "11:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "11:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "11:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "12:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "12:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "12:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "12:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "13:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "13:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "13:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "13:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "14:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "14:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "14:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "14:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "15:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "15:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "15:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "15:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "16:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "16:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "16:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "16:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "17:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "17:27", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "17:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "17:57", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "18:12", platform: "2"  },
+    { line: "E1", destination: "Klingerweg, Betriebshof", time: "18:22", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "18:32", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "18:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "19:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "19:32", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "19:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "20:12", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "20:32", platform: "2"  },
+    { line: "E1", destination: "Klingerweg, Betriebshof", time: "20:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "21:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "21:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "22:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "22:46", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "23:16", platform: "2"  },
+    { line: "E1", destination: "Klingerweg, Betriebshof", time: "23:42", platform: "2"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "00:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "01:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "02:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "03:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "04:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "05:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "05:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "05:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "06:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "06:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "06:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "07:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "07:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "07:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "07:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "08:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "08:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "08:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "08:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "09:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "09:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "09:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "09:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "10:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "10:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "10:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "10:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "11:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "11:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "11:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "11:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "12:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "12:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "12:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "12:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "13:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "13:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "13:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "13:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "14:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "14:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "14:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "14:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "15:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "15:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "15:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "15:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "16:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "16:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "16:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "16:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "17:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "17:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "17:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "17:58", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "18:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "18:28", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "18:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "19:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "19:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "19:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "20:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "20:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "20:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "21:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "21:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "22:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "22:45", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "23:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "23:45", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "00:20", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "01:20", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "02:20", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "03:20", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "04:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "04:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "05:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "05:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "06:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "06:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "06:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "06:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "07:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "07:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "07:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "07:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "08:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "08:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "08:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "08:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "09:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "09:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "09:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "09:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "10:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "10:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "10:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "10:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "11:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "11:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "11:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "11:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "12:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "12:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "12:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "12:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "13:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "13:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "13:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "13:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "14:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "14:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "14:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "14:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "15:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "15:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "15:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "15:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "16:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "16:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "16:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "16:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "17:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "17:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "17:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "17:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "18:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "18:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "18:36", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "18:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "19:06", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "19:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "19:41", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "20:01", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "20:21", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "20:51", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "21:01", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "21:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "21:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "22:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "22:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "23:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "23:48", platform: "1"  },
+    { line: "N6", destination: "Sornow", time: "00:17", platform: "2"  },
+    { line: "N6", destination: "Sornow", time: "01:17", platform: "2"  },
+    { line: "N6", destination: "Sornow", time: "02:17", platform: "2"  },
+    { line: "N6", destination: "Sornow", time: "03:17", platform: "2"  },
+    { line: "E3", destination: "Klingerweg, Betriebshof", time: "04:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "04:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "05:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "05:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "06:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "06:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "06:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "07:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "07:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "07:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "07:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "08:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "08:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "08:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "08:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "09:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "09:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "09:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "09:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "10:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "10:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "10:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "10:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "11:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "11:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "11:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "11:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "12:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "12:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "12:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "12:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "13:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "13:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "13:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "13:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "14:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "14:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "14:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "14:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "15:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "15:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "15:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "15:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "16:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "16:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "16:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "16:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "17:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "17:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "17:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "17:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "18:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "18:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "18:34", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "18:49", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "19:04", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "19:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "19:39", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "19:59", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "20:19", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "20:39", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "20:59", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "21:27", platform: "2"  },
+    { line: "E3", destination: "Klingerweg, Betriebshof", time: "21:37", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "21:57", platform: "2"  },
+    { line: "E3", destination: "Hauptbahnhof", time: "22:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "22:57", platform: "2"  },
+    { line: "E3", destination: "Hauptbahnhof", time: "23:27", platform: "2"  },
+    { line: "E3", destination: "Hauptbahnhof", time: "23:57", platform: "2"  },
+    { line: "N4", destination: "Südbahnhof", time: "00:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "01:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "02:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "03:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "04:15", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "04:35", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "05:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "05:20", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "05:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "05:50", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "06:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "06:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "06:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "06:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "06:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "06:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "07:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "07:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "07:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "07:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "07:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "07:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "08:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "08:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "08:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "08:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "08:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "08:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "09:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "09:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "09:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "09:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "09:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "09:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "10:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "10:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "10:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "10:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "10:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "10:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "11:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "11:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "11:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "11:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "11:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "11:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "12:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "12:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "12:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "12:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "12:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "12:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "13:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "13:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "13:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "13:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "13:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "13:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "14:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "14:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "14:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "14:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "14:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "14:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "15:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "15:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "15:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "15:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "15:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "15:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "16:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "16:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "16:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "16:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "16:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "16:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "17:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "17:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "17:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "17:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "17:45", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "17:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "18:05", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "18:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "18:25", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "18:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "18:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "19:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "19:25", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "19:35", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "19:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "20:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "20:55", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "21:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "21:45", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "22:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "22:45", platform: "1"  },
+    { line: "4", destination:   "Lankwitz", time: "23:15", platform: "1"  },
+    { line: "E4", destination: "Klingerweg, Betriebshof", time: "00:14", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "00:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "01:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "02:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "03:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "04:16", platform: "2"  },
+    { line: "N4", destination: "Ringstraße ▶ weiter mit Straßenbahn zum Ostbahnhof", time: "05:16", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "05:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "05:50", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "06:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "06:20", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "06:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "06:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "06:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "07:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "07:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "07:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "07:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "07:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "07:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "08:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "08:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "08:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "08:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "08:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "08:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:05", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:25", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "19:15", platform: "2"  },
+    { line: "E4", destination: "Klingerweg, Betriebshof", time: "19:24", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "19:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "19:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "20:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "20:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "20:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "21:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "21:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "22:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "22:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "23:15", platform: "2"  },
+    { line: "E4", destination: "Klingerweg, Betriebshof", time: "23:44", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "23:46", platform: "2"  },
+];
+
+const saturdayTimetable = [
+    { line: "1", destination: "Neustadt", time: "00:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "01:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "02:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "03:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "04:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "05:16", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "06:16", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "07:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "07:46", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "08:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "08:46", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "09:02", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "09:22", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "09:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "10:02", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "10:22", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "10:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "11:02", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "11:22", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "11:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "12:02", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "12:22", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "12:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "13:02", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "13:22", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "13:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "14:02", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "14:22", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "14:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "15:02", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "15:22", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "15:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "16:02", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "16:22", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "16:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "17:02", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "17:22", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "17:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "18:02", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "18:22", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "18:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "19:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "19:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "20:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "20:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "21:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "21:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "22:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "22:46", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "23:16", platform: "2"  },
+    { line: "E1", destination: "Klingerweg, Betriebshof", time: "23:42", platform: "2"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "00:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "01:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "02:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "03:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "04:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "05:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "06:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "07:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "07:45", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "08:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "08:45", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "09:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "09:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "09:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "10:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "10:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "10:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "11:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "11:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "11:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "12:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "12:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "12:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "13:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "13:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "13:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "14:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "14:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "14:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "15:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "15:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "15:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "16:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "16:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "16:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "17:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "17:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "17:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "18:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "18:33", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "18:53", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "19:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "19:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "20:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "20:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "21:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "21:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "22:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "22:45", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "23:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "23:45", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "00:20", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "01:20", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "02:20", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "03:20", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "05:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "06:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "06:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "07:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "07:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "08:09", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "08:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "08:44", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "09:04", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "09:24", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "09:44", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "10:04", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "10:24", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "10:44", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "11:04", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "11:24", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "11:44", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "12:04", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "12:24", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "12:44", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "13:04", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "13:24", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "13:44", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "14:04", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "14:24", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "14:44", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "15:04", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "15:24", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "15:44", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "16:04", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "16:24", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "16:44", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "17:04", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "17:24", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "17:44", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "18:04", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "18:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "18:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "19:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "19:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "20:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "20:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "21:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "21:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "22:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "22:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "23:20", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "23:48", platform: "1"  },
+    { line: "N6", destination: "Sornow", time: "00:17", platform: "2"  },
+    { line: "N6", destination: "Sornow", time: "01:17", platform: "2"  },
+    { line: "N6", destination: "Sornow", time: "02:17", platform: "2"  },
+    { line: "N6", destination: "Sornow", time: "03:17", platform: "2"  },
+    { line: "E3", destination: "Klingerweg, Betriebshof", time: "04:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "06:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "06:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "07:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "07:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "08:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "08:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "08:52", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "09:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "09:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "09:52", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "10:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "10:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "10:52", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "11:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "11:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "11:52", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "12:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "12:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "12:52", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "13:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "13:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "13:52", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "14:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "14:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "14:52", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "15:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "15:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "15:52", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "16:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "16:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "16:52", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "17:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "17:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "17:52", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "18:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "18:32", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "18:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "19:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "19:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "20:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "20:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "21:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "21:57", platform: "2"  },
+    { line: "E3", destination: "Klingerweg, Betriebshof", time: "22:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "22:57", platform: "2"  },
+    { line: "3", destination: "Neustadt", time: "23:27", platform: "2"  },
+    { line: "3", destination: "Neustadt", time: "23:57", platform: "2"  },
+    { line: "N4", destination: "Lankwitz", time: "00:14", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "01:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "02:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "03:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "04:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "05:15", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "06:14", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "07:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "07:44", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "08:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "08:44", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "09:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "09:24", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "09:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "09:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "10:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "10:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "10:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "11:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "11:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "11:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "12:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "12:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "12:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "13:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "13:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "13:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "14:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "14:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "14:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "15:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "15:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "15:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "16:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "16:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "16:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "17:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "17:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "17:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "18:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "18:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "18:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "19:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "19:44", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "20:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "20:44", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "21:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "21:44", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "22:14", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "23:14", platform: "1"  },
+    { line: "N4", destination: "Ostbahnhof", time: "00:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "01:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "02:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "03:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "04:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "05:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "06:16", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "07:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "08:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "08:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "19:15", platform: "2"  },
+    { line: "E4", destination: "Klingerweg, Betriebshof", time: "19:23", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "19:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "20:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "20:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "21:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "21:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "22:15", platform: "2"  },
+    { line: "E4", destination: "Klingerweg, Betriebshof", time: "22:23", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "23:15", platform: "2"  },
+];
+
+const sundayTimetable = [
+    { line: "1", destination: "Neustadt", time: "00:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "01:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "02:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "03:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "04:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "05:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "06:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "07:16", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "08:16", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "09:16", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "09:32", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "09:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "10:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "10:32", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "10:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "11:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "11:32", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "11:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "12:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "12:32", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "12:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "13:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "13:32", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "13:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "14:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "14:32", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "14:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "15:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "15:32", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "15:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "16:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "16:32", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "16:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "17:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "17:32", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "17:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "18:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "18:32", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "18:52", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "19:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "19:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "20:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "20:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "21:12", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "21:42", platform: "2"  },
+    { line: "1", destination: "Industriepark Sehna-Nord", time: "22:16", platform: "2"  },
+    { line: "E1", destination: "Klingerweg, Betriebshof", time: "22:42", platform: "2"  },
+    { line: "1", destination: "Neustadt", time: "23:16", platform: "2"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "00:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "01:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "02:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "03:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "04:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "05:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "06:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "07:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "08:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "09:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "09:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "09:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "10:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "10:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "10:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "11:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "11:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "11:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "12:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "12:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "12:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "13:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "13:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "13:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "14:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "14:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "14:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "15:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "15:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "15:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "16:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "16:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "16:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "17:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "17:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "17:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "18:03", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "18:23", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "18:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "19:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "19:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "20:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "20:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "21:13", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "21:43", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "22:15", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "22:45", platform: "1"  },
+    { line: "1", destination: "Schwedter See / Hafen", time: "23:45", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "00:20", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "01:20", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "02:20", platform: "1"  },
+    { line: "N3", destination: "Hellersdorf", time: "03:20", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "06:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "07:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "08:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "08:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "09:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "09:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "10:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "10:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "11:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "11:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "12:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "12:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "13:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "13:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "14:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "14:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "15:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "15:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "16:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "16:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "17:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "17:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "18:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "18:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "19:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "19:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "20:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "20:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "21:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "21:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "22:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "22:59", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "23:29", platform: "1"  },
+    { line: "3", destination: "Hellersdorf", time: "23:48", platform: "1"  },
+    { line: "N6", destination: "Sornow", time: "00:17", platform: "2"  },
+    { line: "N6", destination: "Sornow", time: "01:17", platform: "2"  },
+    { line: "N6", destination: "Sornow", time: "02:17", platform: "2"  },
+    { line: "N6", destination: "Sornow", time: "03:17", platform: "2"  },
+    { line: "E3", destination: "Klingerweg, Betriebshof", time: "04:12", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "07:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "08:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "09:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "09:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "10:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "10:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "11:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "11:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "12:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "12:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "13:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "13:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "14:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "14:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "15:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "15:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "16:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "16:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "17:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "17:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "18:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "18:57", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "19:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "19:57", platform: "2"  },
+    { line: "3", destination: "Neustadt", time: "20:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "20:57", platform: "2"  },
+    { line: "3", destination: "Neustadt", time: "21:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "21:57", platform: "2"  },
+    { line: "3", destination: "Neustadt", time: "22:27", platform: "2"  },
+    { line: "3", destination: "Heidesee", time: "22:57", platform: "2"  },
+    { line: "E3", destination: "Klingerweg, Betriebshof", time: "23:27", platform: "2"  },
+    { line: "3", destination: "Hauptbahnhof", time: "23:57", platform: "2"  },
+    { line: "N4", destination: "Lankwitz", time: "00:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "01:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "02:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "03:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "04:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "05:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "06:15", platform: "1"  },
+    { line: "N4", destination: "Südbahnhof", time: "07:15", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "07:44", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "08:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "08:44", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "09:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "09:24", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "09:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "09:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "10:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "10:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "10:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "11:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "11:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "11:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "12:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "12:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "12:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "13:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "13:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "13:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "14:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "14:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "14:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "15:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "15:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "15:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "16:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "16:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "16:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "17:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "17:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "17:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "18:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "18:34", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "18:54", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "19:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "19:44", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "20:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "20:44", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "21:14", platform: "1"  },
+    { line: "4", destination: "Südbahnhof", time: "21:44", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "22:14", platform: "1"  },
+    { line: "4", destination: "Lankwitz", time: "23:14", platform: "1"  },
+    { line: "N4", destination: "Ostbahnhof", time: "00:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "01:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "02:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "03:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "04:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "05:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "06:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "07:16", platform: "2"  },
+    { line: "N4", destination: "Ostbahnhof", time: "08:16", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "08:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "09:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "10:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "11:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "12:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "13:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "14:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "15:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "16:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "17:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:35", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "18:55", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "19:15", platform: "2"  },
+    { line: "E4", destination: "Klingerweg, Betriebshof", time: "19:23", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "19:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "20:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "20:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "21:15", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "21:45", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "22:15", platform: "2"  },
+    { line: "E4", destination: "Klingerweg, Betriebshof", time: "22:23", platform: "2"  },
+    { line: "4", destination: "Ostbahnhof", time: "23:15", platform: "2"  },
+];
+
+// =======================
+// Logik
+// =======================
+
+function getActiveTimetable() {
+    const d = new Date().getDay();
+    if (d === 0) return sundayTimetable;
+    if (d === 6) return saturdayTimetable;
+    return weekdayTimetable;
+}
+
+function toMinutes(t) {
+    const [h,m] = t.split(":").map(Number);
+    return h*60 + m;
+}
+
+function getCurrentMinutes() {
+    const n = new Date();
+    return n.getHours()*60 + n.getMinutes();
+}
+
+function getNextDepartures(platform) {
+    const nowDate = new Date();
+    const nowMinutes = nowDate.getHours() * 60 + nowDate.getMinutes();
+
+    const today = getActiveTimetable();
+
+    // 👉 Morgen bestimmen
+    const tomorrowDate = new Date();
+    tomorrowDate.setDate(nowDate.getDate() + 1);
+
+    let tomorrow;
+    const d = tomorrowDate.getDay();
+    if (d === 0) tomorrow = sundayTimetable;
+    else if (d === 6) tomorrow = saturdayTimetable;
+    else tomorrow = weekdayTimetable;
+
+    // 👉 Heute + Morgen kombinieren
+    const combined = [
+        ...today.map(d => ({
+            ...d,
+            absMinutes: toMinutes(d.time)
+        })),
+        ...tomorrow.map(d => ({
+            ...d,
+            absMinutes: toMinutes(d.time) + 1440 // 🔥 +24h
+        }))
+    ];
+
+    return combined
+        .filter(d => d.platform === platform)
+        .map(d => ({
+            ...d,
+            minutesLeft: d.absMinutes - nowMinutes
+        }))
+        .filter(d => d.minutesLeft >= 0 && d.minutesLeft <= 60) // 🔥 nur 60 min
+        .sort((a, b) => a.minutesLeft - b.minutesLeft)
+        .slice(0, 6);
+}
+
+// 🔥 Split-Rendering
+function renderDisplayPair(idA, idB, platform) {
+    const deps = getNextDepartures(platform);
+
+    const left = deps.slice(0,3);
+    const right = deps.slice(3,6);
+
+    renderSingle(idA, left);
+    renderSingle(idB, right);
+}
+
+function renderSingle(id, list) {
+    const el = document.getElementById(id);
+    el.innerHTML = "";
+
+    for (let i = 0; i < 3; i++) {
+        const row = document.createElement("div");
+        row.className = "row";
+
+        if (list[i]) {
+            const d = list[i];
+            row.innerHTML = `
+                <div>${d.line}</div>
+                <div class="destination ${d.minutesLeft === 0 ? 'blink' : ''}">
+                    <div class="scroll-text">${d.destination}</div>
+                </div>
+                <div>${d.minutesLeft === 0 ? "" : d.minutesLeft}</div>
+            `;
+        }
+
+        el.appendChild(row);
+    }
+}
+
+// =======================
+// Scroll Engine
+// =======================
+
+const SCROLL_SPEED = 60;
+const PAUSE = 2;
+let cycleTimer = null;
+
+function applyScrolling() {
+    const elements = [...document.querySelectorAll(".scroll-text")];
+
+    let maxDuration = 0;
+    const configs = [];
+
+    elements.forEach(el => {
+        const parent = el.parentElement.offsetWidth;
+        const text = el.scrollWidth;
+
+        if (text > parent) {
+            const start = parent;
+            const end = -text;
+            const duration = (start - end) / SCROLL_SPEED;
+
+            if (duration > maxDuration) maxDuration = duration;
+
+            configs.push({ el, start, end, duration });
+        } else {
+            el.style.animation = "none";
+            el.style.transform = "translateX(0)";
+        }
+    });
+
+    if (maxDuration === 0) return;
+
+    if (cycleTimer) clearTimeout(cycleTimer);
+
+    function startCycle() {
+        configs.forEach(cfg => {
+            const el = cfg.el;
+
+            el.style.animation = "none";
+            el.offsetHeight;
+
+            el.style.setProperty("--start", cfg.start + "px");
+            el.style.setProperty("--end", cfg.end + "px");
+
+            el.style.animation = `scroll-left ${cfg.duration}s linear forwards`;
+        });
+
+        cycleTimer = setTimeout(startCycle, (maxDuration + PAUSE) * 1000);
+    }
+
+    startCycle();
+}
+
+// =======================
+// Uhr
+// =======================
+
+function updateClock(id) {
+    document.getElementById(id).textContent =
+        new Date().toLocaleTimeString("de-DE", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+}
+
+// =======================
+// LOOP
+// =======================
+
+setInterval(() => {
+    const now = new Date();
+
+    if (now.getSeconds() === 0) {
+        renderDisplayPair("departures1a", "departures1b", "1");
+        renderDisplayPair("departures2a", "departures2b", "2");
+
+        setTimeout(applyScrolling, 50);
+    }
+
+    updateClock("clock1");
+    updateClock("clock2");
+
+}, 1000);
+
+// Initial
+renderDisplayPair("departures1a", "departures1b", "1");
+renderDisplayPair("departures2a", "departures2b", "2");
+setTimeout(applyScrolling, 100);
+
+updateClock("clock1");
+updateClock("clock2");
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>ÖPNV</title>
+  <style>
+   * {
+     box-sizing: border-box;
+   }
+
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+    }
+
+    /* Grüner Balken als Container */
+    .green-bar {
+      width: 100%;
+      background-color: #008b45;
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 40px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .bar-top {
+      height: auto;
+    }
+
+    .bar-bottom {
+      height: auto;
+    }
+
+    /* Navigationsbereich */
+    .nav-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      background-color: #f4f4f4;
+      padding: 10px 40px;
+    }
+
+    .nav-bar img {
+      height: 50px;
+      width: auto;
+      margin-right: 40px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex: 1; /* nimmt gesamte restliche Breite ein */
+      justify-content: center; /* zentriert Links */
+      gap: 30px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .nav-links a:hover {
+      color: #008b45;
+    }
+
+    h1 {
+      margin: 20px 0;
+      color: #008b45;
+      margin-bottom: 4px; /* Abstand unterhalb der Überschrift */
+    }
+
+    h2 {
+      margin: 8px 0;
+      color: #008b45;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+    }
+
+    h3 {
+      margin: 8px 0;
+      color: black;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    h4 {
+      margin: 8px 0;
+      color: black;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+      font-size: 15px;
+    }
+
+.custom-table img {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+}
+
+.accordion {
+  width: 80%;
+  margin: 20px auto;
+  text-align: left;
+}
+
+.accordion-item {
+  border-bottom: 1px solid #ccc;
+}
+
+.accordion-header {
+  background-color: #008b45;
+  color: white;
+  padding: 15px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.accordion-header:hover {
+  background-color: #006f38;
+}
+
+.accordion-content {
+  display: none;
+  padding: 15px;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.custom-table td {
+  border: 1px solid #ccc;
+  padding: 12px;
+  text-align: left;
+}
+
+/* volle Breite optisch hervorheben */
+.custom-table td[colspan="2"] {
+  background-color: #008b45;
+  color: white;
+  font-weight: bold;
+}
+
+   /* Lauftext-Balken */
+   .ticker-container {
+  width: 100%;
+  background-color: #f4f4f4;   /* gleiche Farbe wie nav-bar */
+  overflow: hidden;
+  border-top: 2px solid #444;
+  border-bottom: 2px solid #444;
+  position: relative;
+  height: 40px; /* Höhe für stabilen Lauftext */
+}
+
+.ticker-text {
+  position: absolute;
+  white-space: nowrap;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  animation: ticker linear infinite;
+  animation-duration: var(--ticker-speed, 15s); /* Geschwindigkeit einstellbar */
+}
+
+/* Kontinuierlicher Lauftext von rechts nach links */
+@keyframes ticker {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+
+  </style>
+</head>
+<body>
+  <!-- Grüner Balken mit Text -->
+  <div class="green-bar bar-top">
+    <div>Ein Unternehmen der Stadt Schwedt.</div>
+    <div id="datetime"></div>
+  </div>
+
+  <!-- Inhaltsverzeichnis mit Logo + Links -->
+  <div class="nav-bar">
+    <!-- Logo -->
+    <a href="../../index.html">
+     <img src="../Logo.png" alt="Logo">
+   </a>
+
+    <!-- Links -->
+    <div class="nav-links">
+      <a href="#">Aktuelles</a>
+      <a href="../Fahrplan/Linienfahrplan.html">Linienfahrpläne und Netzplan</a>
+      <a href="../Abfahrten/Abfahrten.html">Abfahrtsanzeigen</a>
+      <a href="../Verbindungsauskunft/Verbindungsauskunft.html">Verbindungsauskunft</a>
+      <a href="../Tickets/Tickets.html">Tickets / VBB</a>
+      <a href="#">Über den ÖPNV in Schwedt</a>
+    </div>
+  </div>
+
+   <!-- Lauftext -->
+   <div class="ticker-container">
+     <div class="ticker-text">
+       Herzlich Willkommen bei den Stadtwerken Schwedt. Hier finden Sie alle wichtigen und aktuellen Informationen rund um Ihren Nahverkehr in Schwedt und Umgebung.
+     </div>
+   </div>
+
+<h1>Über den ÖPNV in Schwedt</h1>
+<h2>Alles, was du über uns wissen musst. Und noch mehr!</h2>
+
+
+<div class="accordion">
+
+  <div class="accordion-item">
+    <div class="accordion-header">Geschichte ▼</div>
+    <div class="accordion-content">
+      <p>Die Geschichte des ÖPNV in Schwedt begann mit ...</p>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <div class="accordion-header">Unsere Fahrzeuge ▼</div>
+    <div class="accordion-content">
+      <p>Als Betreiber des öffentlichen Personennahverkehrs in Schwedt besitzen wir eine Vielzahl an unterschiedlichen Fahrzeugen. Mit Stand Ende März 2026 besteht unsere Flotte aus rund <strong>40</strong> Straßenbahnfahrzeugen und circa <strong>60</strong> Stadt- und Regionalbussen.</p><br>
+      <h3>Straßenbahnen</h3>
+
+	<table class="custom-table">
+	  
+	  <!-- Zeile 1 (volle Breite) -->
+	  <tr>
+	    <td colspan="2">Tatra KT4D - das Rückgrat der Flotte</td>
+	  </tr>
+
+	  <!-- Zeile 2 (2 Spalten) -->
+	  <tr>
+	    <td>🚏 Anzahl: 25 Fahrzeuge<br>
+	        🚏 in Betrieb seit 1985</td>
+	    <td> <img src="Tatra2.jpg" alt="Tatra KT4D"> </td>
+	  </tr>
+
+	  <!-- Zeile 3 -->
+	  <tr>
+	    <td colspan="2">Duewag, AEG MGT6D - das Arbeitstier</td>
+	  </tr>
+
+	  <!-- Zeile 4 -->
+	  <tr>
+	    <td>🚏 Anzahl: 10 Fahrzeuge, 2026 werden 5 gebrauchte Wagen aus Halle übernommen<br>
+	        🚏 in Betrieb seit 2000<br>
+		🚏 Fahrzeug ist komplett Barrierefrei.<br>
+		🚏 Alle Fahrzeuge sind als Zweirichtungsfahrzeuge ausgelegt.</</td>
+	    <td> <img src="MGT6D.jpg" alt="Duewag, AEG MGT6D"> </td>
+	  </tr>
+
+	  <!-- Zeile 5 -->
+	  <tr>
+	    <td colspan="2">Stadler Tina - die Moderne</td>
+	  </tr>
+
+	  <!-- Zeile 6 -->
+	  <tr>
+	    <td>🚏 Anzahl: 25 Fahrzeuge sind bestellt, Aktuell im Einsatz: 5<br>
+		🚏 die Fahrzeuge werden in zwei Unterschiedlichen Längen produziert:<br>
+		🚋 Tina S (3-Wagen-Fahrzeug) mit einer Länge von 32 Metern.<br>
+		🚋 Tina XL (5-Wagen-Fahrzeug) mit einer Länge von 45 Metern. Damit ist sie die längste Straßenbahn, die jemals in Schwedt unterwegs war!<br>
+	        🚏 Auslieferung seit 2025<br>
+		🚏 Fahrzeug ist komplett Barrierefrei und verfügen über eine Klimaanlage.<br>
+		🚏 Alle Fahrzeuge sind als Zweirichtungsfahrzeuge ausgelegt.</td>
+	    <td> <img src="Tina.jpg" alt="Stadler Tina"> </td>
+	  </tr>
+
+	</table>
+	    </div>
+	  </div>
+
+  <div class="accordion-item">
+    <div class="accordion-header">Bewerbungsportal ▼</div>
+    <div class="accordion-content">
+      <p>Du suchst eine Arbeitsplatz, der zu dir passt? Dann bist du hier genau richtig. Im ÖPNV-Zweig der Stadtwerke Schwedt gibt es eine Vielzahl an unterschiedlichen Berufen in diversen Fachbereichen. Egal ob im direkten Kundenkontakt, in der Fahrzeuginstandhaltung, in der Betriebsplanung oder der Verwaltung. Du findest bei uns genau den Job, der für dich bestimmt ist. Bweirb dich einfach online über unser Bewerbungsportal. Wir freuen uns auf dich!</p>
+      <h3>Hier findest du aktuelle Stellenangebote:</h3>
+      <p>Fachkraft im Fahrbetrieb, Straßenbahnen (m/w/d)</p>
+      <p>Fachkraft im Fahrbetrieb, Beruftskraftfahrer/ Bus (m/w/d)</p>
+      <p>Fachkraft im Fahrbetrieb, Beruftskraftfahrer/ Bus und Straßenbahnen (m/w/d)</p>
+      <p>Mechatroniker Kraftfahrzeuge (m/w/d)</p>
+      <p>Mechatroniker Schienenfahrzeuge (m/w/d)</p>
+      <p>Mitarbeiter Fahrzeugservice (m/w/d)</p>
+      <p>Mitarbeiter Controling (m/w/d)</p>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
+  
+  <!-- Grüner Balken als Abschluss ganz unten -->
+  <div class="green-bar bar-bottom">
+<div>Ein Unternehmen der Stadt Schwedt.<br><br>Servicenummer: 03567 16966782</div> <br> <div>Öffnungszeiten Kundenzentrum Markt<br>Mo-Fr 08-18 Uhr<br>Sa 09-16 Uhr<br>So geschlossen</div>
+</div>
+
+<script>
+/* Uhrzeit */
+function updateDateTime() {
+  const now = new Date();
+  const options = { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit' 
+  };
+  document.getElementById("datetime").textContent = 
+    now.toLocaleDateString("de-DE", options);
+}
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+// Accordion Funktion
+const headers = document.querySelectorAll(".accordion-header");
+
+headers.forEach(header => {
+  header.addEventListener("click", () => {
+    const content = header.nextElementSibling;
+
+    // Toggle Anzeige
+    content.style.display =
+      content.style.display === "block" ? "none" : "block";
+  });
+});
+
+</script>
+</body>
+</html>

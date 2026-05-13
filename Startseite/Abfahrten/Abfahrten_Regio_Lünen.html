@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Digitale Abfahrtsanzeige Lünen</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#111;
+    color:white;
+    padding:20px;
+}
+
+.board{
+    width:100%;
+    max-width:1200px;
+    margin:auto;
+    background:#1b1b1b;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 0 25px rgba(0,0,0,0.5);
+}
+
+/* HEADER */
+
+.header{
+    background:#222;
+    padding:20px 25px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:3px solid #333;
+}
+
+.station-name{
+    font-size:34px;
+    font-weight:bold;
+    letter-spacing:1px;
+}
+
+.date-time{
+    text-align:right;
+    line-height:1.5;
+    font-size:18px;
+}
+
+/* TABELLENKOPF */
+
+.table-header,
+.departure-row{
+    display:grid;
+    grid-template-columns:
+        110px
+        1fr
+        120px
+        120px
+        80px;
+
+    align-items:center;
+    padding:14px 20px;
+}
+
+.table-header{
+    background:#2b2b2b;
+    font-weight:bold;
+    border-bottom:2px solid #444;
+    font-size:18px;
+}
+
+/* TAGES-TRENNER */
+
+.day-separator{
+    background:#2a2a2a;
+    color:#ffd800;
+    font-size:18px;
+    font-weight:bold;
+    padding:12px 20px;
+    border-top:2px solid #444;
+    border-bottom:2px solid #444;
+}
+
+/* ABFAHRT */
+
+.departure{
+    border-bottom:1px solid #333;
+}
+
+.departure-row{
+    font-size:24px;
+    min-height:70px;
+    cursor:pointer;
+    transition:background 0.2s;
+}
+
+.departure-row:hover{
+    background:#242424;
+}
+
+.line{
+    font-weight:bold;
+    color:#ffd800;
+}
+
+.scheduled{
+    color:#fff;
+}
+
+.realtime{
+    font-weight:bold;
+    color:#00d44f;
+}
+
+.realtime.delayed{
+    color:#ff3b3b;
+}
+
+.platform{
+    text-align:right;
+    font-weight:bold;
+}
+
+/* DETAILS */
+
+.details{
+    display:none;
+    background:#181818;
+    padding:20px 30px 25px 30px;
+}
+
+.details.open{
+    display:block;
+}
+
+.train-number{
+    margin-bottom:20px;
+    color:#aaa;
+    font-size:18px;
+}
+
+/* ZEITSTRAHL */
+
+.timeline{
+    position:relative;
+    margin-left:20px;
+    padding-left:40px;
+    border-left:3px solid #666;
+}
+
+.stop{
+    position:relative;
+    padding-bottom:25px;
+
+    display:grid;
+    grid-template-columns:
+        110px
+        110px
+        1fr;
+
+    gap:20px;
+    align-items:center;
+    font-size:18px;
+}
+
+.stop:last-child{
+    padding-bottom:0;
+}
+
+.stop::before{
+    content:"";
+
+    position:absolute;
+
+    left:-48px;
+    top:7px;
+
+    width:14px;
+    height:14px;
+
+    border-radius:50%;
+
+    background:#00d44f;
+
+    border:3px solid #111;
+}
+
+.stop-time{
+    color:white;
+}
+
+.stop-rt{
+    color:#00d44f;
+    font-weight:bold;
+}
+
+.stop-rt.delayed{
+    color:#ff3b3b;
+}
+
+.station{
+    font-size:20px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+    .departure-row,
+    .table-header{
+
+        grid-template-columns:
+            90px
+            1fr
+            90px
+            90px
+            60px;
+
+        font-size:16px;
+    }
+
+    .departure-row{
+        font-size:18px;
+    }
+
+    .station-name{
+        font-size:26px;
+    }
+
+    .date-time{
+        font-size:15px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="board">
+
+    <div class="header">
+
+        <div class="station-name">
+            Lünen Hbf
+        </div>
+
+        <div class="date-time">
+            <div id="weekday"></div>
+            <div id="date"></div>
+            <div id="clock"></div>
+        </div>
+
+    </div>
+
+    <div class="table-header">
+
+        <div>Linie</div>
+        <div>Ziel</div>
+        <div>Plan</div>
+        <div>Echtzeit</div>
+        <div>Gleis</div>
+
+    </div>
+
+    <div id="departures"></div>
+
+</div>
+
+<script>
+
+//////////////////////////////////////////////////////////////////
+// FAHRPLAN
+//////////////////////////////////////////////////////////////////
+
+const timetable = {
+
+    weekday: [
+
+        {
+            trainNumber: "55401",
+            line: "RE55",
+            destination: "Münster(Westf)Hbf",
+            scheduledDeparture: "06:05",
+            realtimeDeparture: "06:05",
+            platform: "2",
+
+            stops: [
+                {
+                    scheduled: "06:05",
+                    realtime: "06:05",
+                    station: "Lünen Hbf"
+                },
+                {
+                    scheduled: "06:17",
+                    realtime: "06:17",
+                    station: "Dortmund Hbf"
+                },
+                {
+                    scheduled: "07:08",
+                    realtime: "07:08",
+                    station: "Münster(Westf)Hbf"
+                }
+            ]
+        },
+
+        {
+            trainNumber: "55402",
+            line: "RB50",
+            destination: "Dortmund Hbf",
+            scheduledDeparture: "06:20",
+            realtimeDeparture: "06:20",
+            platform: "5",
+
+            stops: [
+                {
+                    scheduled: "06:20",
+                    realtime: "06:20",
+                    station: "Lünen Hbf"
+                },
+                {
+                    scheduled: "06:31",
+                    realtime: "06:31",
+                    station: "Dortmund Hbf"
+                }
+            ]
+        },
+
+        {
+            trainNumber: "55403",
+            line: "IC34",
+            destination: "Köln Hbf",
+            scheduledDeparture: "07:05",
+            realtimeDeparture: "07:05",
+            platform: "1",
+
+            stops: [
+                {
+                    scheduled: "07:05",
+                    realtime: "07:05",
+                    station: "Lünen Hbf"
+                },
+                {
+                    scheduled: "08:12",
+                    realtime: "08:12",
+                    station: "Essen Hbf"
+                },
+                {
+                    scheduled: "09:02",
+                    realtime: "09:02",
+                    station: "Köln Hbf"
+                }
+            ]
+        }
+
+    ],
+
+    saturday: [
+
+        {
+            trainNumber: "66001",
+            line: "RE55",
+            destination: "Münster(Westf)Hbf",
+            scheduledDeparture: "08:05",
+            realtimeDeparture: "08:05",
+            platform: "2",
+
+            stops: [
+                {
+                    scheduled: "08:05",
+                    realtime: "08:05",
+                    station: "Lünen Hbf"
+                },
+                {
+                    scheduled: "09:08",
+                    realtime: "09:08",
+                    station: "Münster(Westf)Hbf"
+                }
+            ]
+        }
+
+    ],
+
+    sunday: [
+
+        {
+            trainNumber: "77001",
+            line: "RE55",
+            destination: "Dortmund Hbf",
+            scheduledDeparture: "09:30",
+            realtimeDeparture: "09:30",
+            platform: "3",
+
+            stops: [
+                {
+                    scheduled: "09:30",
+                    realtime: "09:30",
+                    station: "Lünen Hbf"
+                },
+                {
+                    scheduled: "09:48",
+                    realtime: "09:48",
+                    station: "Dortmund Hbf"
+                }
+            ]
+        }
+
+    ]
+};
+
+//////////////////////////////////////////////////////////////////
+// DATUM UND UHRZEIT
+//////////////////////////////////////////////////////////////////
+
+function updateClock(){
+
+    const now = new Date();
+
+    document.getElementById("weekday").innerText =
+        now.toLocaleDateString("de-DE", {
+            weekday: "long"
+        });
+
+    document.getElementById("date").innerText =
+        now.toLocaleDateString("de-DE", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        });
+
+    document.getElementById("clock").innerText =
+        now.toLocaleTimeString("de-DE", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        });
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+//////////////////////////////////////////////////////////////////
+// WOCHENTAG ERMITTELN
+//////////////////////////////////////////////////////////////////
+
+function getDayType(date){
+
+    const day = date.getDay();
+
+    if(day === 0){
+        return "sunday";
+    }
+
+    if(day === 6){
+        return "saturday";
+    }
+
+    return "weekday";
+}
+
+//////////////////////////////////////////////////////////////////
+// DATUM + UHRZEIT ZUSAMMENSETZEN
+//////////////////////////////////////////////////////////////////
+
+function createDateTime(baseDate, timeString){
+
+    const [hours, minutes] =
+        timeString.split(":").map(Number);
+
+    const newDate = new Date(baseDate);
+
+    newDate.setHours(hours);
+    newDate.setMinutes(minutes);
+    newDate.setSeconds(0);
+    newDate.setMilliseconds(0);
+
+    return newDate;
+}
+
+//////////////////////////////////////////////////////////////////
+// NÄCHSTE 6 ABFAHRTEN
+//////////////////////////////////////////////////////////////////
+
+function getNextDepartures(){
+
+    const result = [];
+
+    const now = new Date();
+
+    for(let offset = 0; offset < 7; offset++){
+
+        const currentDate = new Date(now);
+
+        currentDate.setDate(
+            now.getDate() + offset
+        );
+
+        const dayType =
+            getDayType(currentDate);
+
+        const departures =
+            timetable[dayType];
+
+        departures.forEach(dep => {
+
+            const departureDate =
+                createDateTime(
+                    currentDate,
+                    dep.realtimeDeparture
+                );
+
+            if(departureDate >= now){
+
+                result.push({
+
+                    ...dep,
+
+                    fullDate: departureDate
+
+                });
+            }
+        });
+
+        result.sort((a, b) => {
+            return a.fullDate - b.fullDate;
+        });
+
+        if(result.length >= 6){
+            break;
+        }
+    }
+
+    return result.slice(0, 6);
+}
+
+//////////////////////////////////////////////////////////////////
+// ABFAHRTEN RENDERN
+//////////////////////////////////////////////////////////////////
+
+function renderDepartures(){
+
+    const container =
+        document.getElementById("departures");
+
+    //////////////////////////////////////////////////////////////
+    // GEÖFFNETE MERKEN
+    //////////////////////////////////////////////////////////////
+
+    const openTrainNumbers = [];
+
+    document.querySelectorAll(".details.open")
+        .forEach(detail => {
+
+            openTrainNumbers.push(
+                detail.dataset.train
+            );
+        });
+
+    container.innerHTML = "";
+
+    const departures =
+        getNextDepartures();
+
+    let lastDateString = "";
+
+    departures.forEach(dep => {
+
+        ////////////////////////////////////////////////////////////
+        // TAGES-TRENNER
+        ////////////////////////////////////////////////////////////
+
+        const currentDateString =
+            dep.fullDate.toLocaleDateString("de-DE", {
+                weekday: "long",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            });
+
+        if(currentDateString !== lastDateString){
+
+            const separator =
+                document.createElement("div");
+
+            separator.className =
+                "day-separator";
+
+            separator.innerText =
+                currentDateString;
+
+            container.appendChild(separator);
+
+            lastDateString =
+                currentDateString;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // WRAPPER
+        ////////////////////////////////////////////////////////////
+
+        const wrapper =
+            document.createElement("div");
+
+        wrapper.className = "departure";
+
+        ////////////////////////////////////////////////////////////
+        // ZEILE
+        ////////////////////////////////////////////////////////////
+
+        const row =
+            document.createElement("div");
+
+        row.className =
+            "departure-row";
+
+        const isDelayed =
+            dep.scheduledDeparture !==
+            dep.realtimeDeparture;
+
+        row.innerHTML = `
+
+            <div class="line">
+                ${dep.line}
+            </div>
+
+            <div>
+                ${dep.destination}
+            </div>
+
+            <div class="scheduled">
+                ${dep.scheduledDeparture}
+            </div>
+
+            <div class="realtime ${isDelayed ? 'delayed' : ''}">
+                ${dep.realtimeDeparture}
+            </div>
+
+            <div class="platform">
+                ${dep.platform}
+            </div>
+
+        `;
+
+        ////////////////////////////////////////////////////////////
+        // DETAILS
+        ////////////////////////////////////////////////////////////
+
+        const details =
+            document.createElement("div");
+
+        details.className =
+            "details";
+
+        details.dataset.train =
+            dep.trainNumber;
+
+        ////////////////////////////////////////////////////////////
+        // WIEDER ÖFFNEN
+        ////////////////////////////////////////////////////////////
+
+        if(
+            openTrainNumbers.includes(
+                dep.trainNumber
+            )
+        ){
+            details.classList.add("open");
+        }
+
+        ////////////////////////////////////////////////////////////
+        // HALTE
+        ////////////////////////////////////////////////////////////
+
+        let stopsHTML = "";
+
+        dep.stops.forEach(stop => {
+
+            const delayed =
+                stop.scheduled !==
+                stop.realtime;
+
+            stopsHTML += `
+
+                <div class="stop">
+
+                    <div class="stop-time">
+                        ${stop.scheduled}
+                    </div>
+
+                    <div class="stop-rt ${delayed ? 'delayed' : ''}">
+                        ${stop.realtime}
+                    </div>
+
+                    <div class="station">
+                        ${stop.station}
+                    </div>
+
+                </div>
+
+            `;
+        });
+
+        details.innerHTML = `
+
+            <div class="train-number">
+                Zugnummer: ${dep.trainNumber}
+            </div>
+
+            <div class="timeline">
+                ${stopsHTML}
+            </div>
+
+        `;
+
+        ////////////////////////////////////////////////////////////
+        // CLICK
+        ////////////////////////////////////////////////////////////
+
+row.addEventListener("click", () => {
+
+    if(details.classList.contains("open")){
+
+        details.classList.remove("open");
+
+        const index =
+            openTrainNumbers.indexOf(dep.trainNumber);
+
+        if(index > -1){
+            openTrainNumbers.splice(index, 1);
+        }
+
+    }else{
+
+        details.classList.add("open");
+
+        if(
+            !openTrainNumbers.includes(dep.trainNumber)
+        ){
+            openTrainNumbers.push(dep.trainNumber);
+        }
+    }
+
+});
+
+        wrapper.appendChild(row);
+        wrapper.appendChild(details);
+
+        container.appendChild(wrapper);
+    });
+}
+
+//////////////////////////////////////////////////////////////////
+// START
+//////////////////////////////////////////////////////////////////
+
+renderDepartures();
+
+//////////////////////////////////////////////////////////////////
+// AUTOMATISCH AKTUALISIEREN
+//////////////////////////////////////////////////////////////////
+
+setInterval(() => {
+
+    renderDepartures();
+
+}, 1000);
+
+</script>
+
+</body>
+</html>

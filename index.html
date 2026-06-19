@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Startseite_Index</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f4f6f8;
+  color: #222;
+}
+
+/* =========================================================
+   HEADER / FOOTER / NAVIGATION
+   Diesen Block kannst du komplett auf andere Seiten kopieren
+   ========================================================= */
+
+/* Oberer und unterer grüner Balken */
+
+.green-bar {
+  width: 100%;
+  background: linear-gradient(135deg, #008b45, #00a050);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px 45px;
+  box-sizing: border-box;
+
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  position: relative;
+  z-index: 10;
+}
+
+/* Footer etwas größer */
+
+.green-bar.bar-bottom {
+  margin-top: 35px;
+  line-height: 1.6;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Navigation */
+
+.nav-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(10px);
+
+  padding: 14px 45px;
+  box-sizing: border-box;
+
+  box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+
+  position: relative;
+  z-index: 9;
+}
+
+/* Logo */
+
+.nav-bar img {
+  height: 54px;
+  width: auto;
+  margin-right: 50px;
+
+  transition: transform 0.2s ease;
+}
+
+.nav-bar img:hover {
+  transform: scale(1.03);
+}
+
+/* Links */
+
+.nav-links {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  gap: 35px;
+}
+
+.nav-links a {
+  position: relative;
+
+  text-decoration: none;
+  color: #333;
+
+  font-weight: 600;
+  font-size: 15px;
+
+  transition: color 0.2s ease;
+}
+
+/* Unterstreichung beim Hover */
+
+.nav-links a::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+
+  width: 0;
+  height: 3px;
+
+  background: #008b45;
+  border-radius: 10px;
+
+  transition: width 0.25s ease;
+}
+
+.nav-links a:hover {
+  color: #008b45;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* =========================================================
+   ENDE HEADER / FOOTER / NAVIGATION
+   ========================================================= */
+
+/* Lauftext */
+.ticker-container {
+  width: 100%;
+  background-color: #f4f4f4;
+
+  overflow: hidden;
+
+  border-top: 2px solid #444;
+  border-bottom: 2px solid #444;
+
+  position: relative;
+  height: 40px;
+}
+
+.ticker-text {
+  position: absolute;
+  white-space: nowrap;
+
+  padding: 10px 20px;
+
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+
+  animation: ticker linear infinite;
+  animation-duration: 15s;
+}
+
+@keyframes ticker {
+
+  0% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+
+}
+
+/* Überschriften */
+h1 {
+  margin: 20px 0 4px 0;
+  color: #008b45;
+  text-align: center;
+}
+
+h2 {
+  margin: 5px 0 20px 0;
+  color: #008b45;
+  text-align: center;
+}
+
+/* Informationskasten */
+.info-box {
+
+  max-width: 1000px;
+  margin: 30px auto;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+
+  padding: 25px;
+
+  background-color: #f4f4f4;
+
+  border-left: 8px solid #008b45;
+
+  border-radius: 10px;
+
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+
+  text-align: left;
+}
+
+/* Grünes i */
+.info-icon {
+
+  min-width: 50px;
+  height: 50px;
+
+  background-color: #008b45;
+
+  color: white;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Inhalt */
+.info-content {
+  flex: 1;
+}
+
+/* Überschrift */
+.info-title {
+
+  font-size: 24px;
+  font-weight: bold;
+
+  margin-bottom: 10px;
+
+  color: #008b45;
+}
+
+/* Text */
+.info-text {
+
+  font-size: 16px;
+  line-height: 1.5;
+
+  margin-bottom: 20px;
+
+  color: #333;
+}
+
+/* Button */
+.info-button {
+
+  display: inline-block;
+
+  padding: 10px 20px;
+
+  background-color: #008b45;
+
+  color: white;
+
+  text-decoration: none;
+
+  border-radius: 6px;
+
+  font-weight: bold;
+
+  transition: background-color 0.3s;
+}
+
+.info-button:hover {
+  background-color: #006d36;
+}
+
+/* Slideshow */
+.slideshow {
+
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+
+  margin: 20px auto;
+
+  max-width: 1000px;
+
+  overflow: hidden;
+}
+
+.slideshow::before {
+
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 40%;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.6),
+    transparent
+  );
+
+  z-index: 1;
+}
+
+.slideshow-overlay,
+.slideshow-dots {
+  z-index: 2;
+}
+
+.slideshow img {
+
+  width: 100%;
+
+  border-radius: 12px;
+
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+
+  opacity: 1;
+
+  transition: opacity 1s ease-in-out;
+}
+
+/* Overlay */
+.slideshow-overlay {
+
+  position: absolute;
+
+  top: 80px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  text-align: center;
+
+  color: white;
+
+  opacity: 1;
+
+  transition: opacity 1s ease-in-out;
+}
+
+/* Überschrift im Bild */
+.slideshow-headline {
+
+  font-size: 42px;
+  font-weight: bold;
+
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+
+  margin-bottom: 20px;
+}
+
+/* Button */
+.slideshow-link {
+
+  display: inline-block;
+
+  padding: 12px 24px;
+
+  background-color: #008b45;
+
+  color: white;
+
+  text-decoration: none;
+
+  border-radius: 8px;
+
+  font-weight: bold;
+
+  transition: background-color 0.3s;
+}
+
+.slideshow-link:hover {
+  background-color: #006d36;
+}
+
+/* Punkte */
+.slideshow-dots {
+
+  position: absolute;
+
+  top: 20px;
+
+  display: flex;
+
+  gap: 12px;
+}
+
+/* Einzelner Punkt */
+.dot {
+
+  width: 14px;
+  height: 14px;
+
+  border-radius: 50%;
+
+  background-color: rgba(255,255,255,0.7);
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+/* Aktiver Punkt */
+.dot.active {
+
+  width: 20px;
+  height: 20px;
+
+  background-color: #008b45;
+}
+
+/* Footer */
+.bar-bottom {
+  margin-top: 30px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- Oberer Balken -->
+<div class="green-bar">
+
+  <div>
+    Ein Unternehmen der Stadt Schwedt.
+  </div>
+
+  <div id="datetime"></div>
+
+</div>
+
+<!-- Navigation -->
+<div class="nav-bar">
+
+  <a href="#">
+    <img src="Startseite/Logo.png" alt="Logo">
+  </a>
+
+  <div class="nav-links">
+
+    <a href="Startseite/Aktuelles/Aktuelles.html">
+      Aktuelles
+    </a>
+
+    <a href="Startseite/Fahrplan/Linienfahrplan.html">
+      Linienfahrpläne und Netzplan
+    </a>
+
+    <a href="Startseite/Abfahrten/Abfahrten.html">
+      Abfahrtsanzeigen
+    </a>
+
+    <a href="Startseite/Verbindungsauskunft/Verbindungsauskunft.html">
+      Verbindungsauskunft
+    </a>
+
+    <a href="Startseite/Tickets/Tickets.html">
+      Tickets / VBB
+    </a>
+
+    <a href="Startseite/ÖPNV/ÖPNV.html">
+      Über den ÖPNV in Schwedt
+    </a>
+
+  </div>
+
+</div>
+
+<!-- Lauftext -->
+<div class="ticker-container">
+
+  <div class="ticker-text">
+
+    Herzlich Willkommen bei den Stadtwerken Schwedt.
+    Hier finden Sie alle wichtigen und aktuellen Informationen
+    rund um Ihren Nahverkehr in Schwedt und Umgebung.
+
+  </div>
+
+</div>
+
+<!-- Überschrift -->
+<h1>Willkommen bei den Stadtwerken Schwedt</h1>
+
+<h2>
+  Der Nahverkehrsbetreiber in deiner Region für deine Region.
+</h2>
+
+<!-- Informationskasten1 -->
+<div class="info-box">
+
+  <div class="info-icon">
+    i
+  </div>
+
+  <div class="info-content">
+
+    <div class="info-title">
+      Wichtige Information
+    </div>
+
+    <div class="info-text">
+
+            Aufgrund von Bauarbeiten kommt es derzeit
+      zu Einschränkungen im Straßenbahnverkehr
+      auf der Linie 2 zwischen Kröllwitz und Ostbahnhof, sowie ab 23.05. auf den Linien 1 und 2 zwischen Hauptbahnhof und Neustadt bzw. Industriepark.
+
+    </div>
+
+    <a
+      href="Startseite/Aktuelles/Aktuelles.html"
+      class="info-button">
+
+      zu den Linienänderungen
+
+    </a>
+
+  </div>
+
+</div>
+
+<!-- Slideshow -->
+<div class="slideshow">
+
+  <img
+    id="slideshow-img"
+    src="Startseite/Bild4.png"
+    alt="Slideshow">
+
+  <!-- Overlay -->
+  <div class="slideshow-overlay">
+
+    <div
+      class="slideshow-headline"
+      id="slideshow-headline">
+
+      Herzlich Willkommen
+
+    </div>
+
+    <a
+      id="slideshow-link"
+      class="slideshow-link"
+      href="Startseite/ÖPNV/ÖPNV.html">
+
+      Über den ÖPNV in Schwedt
+
+    </a>
+
+  </div>
+
+  <!-- Punkte -->
+  <div
+    class="slideshow-dots"
+    id="slideshow-dots">
+
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="green-bar bar-bottom">
+
+  <div>
+
+    Ein Unternehmen der Stadt Schwedt.
+
+    <br><br>
+
+    Servicenummer: 03567 16966782
+
+  </div>
+
+  <div>
+
+    Öffnungszeiten Kundenzentrum Markt
+
+    <br>
+
+    Mo-Fr 08-18 Uhr
+
+    <br>
+
+    Sa 09-16 Uhr
+
+    <br>
+
+    So geschlossen
+
+  </div>
+
+</div>
+
+<script>
+
+/* Uhrzeit */
+function updateDateTime() {
+
+  const now = new Date();
+
+  document.getElementById("datetime").textContent =
+    now.toLocaleString("de-DE");
+
+}
+
+updateDateTime();
+
+setInterval(updateDateTime, 1000);
+
+
+/* Slideshow-Daten */
+const slides = [
+
+  {
+    image: "Startseite/Bild4.png",
+    headline: "Herzlich Willkommen",
+    link: "Startseite/ÖPNV/ÖPNV.html",
+    buttonText: "Über den ÖPNV in Schwedt"
+  },
+
+  {
+    image: "Startseite/Bild1.png",
+    headline: "Steig ein und komm in unser Team!",
+    link: "Startseite/ÖPNV/ÖPNV.html",
+    buttonText: "Zu den offenen Stellen"
+  },
+
+  {
+    image: "Startseite/Bild2.png",
+    headline: "Bauarbeiten Siedlerstraße",
+    link: "Startseite/Aktuelles/Aktuelles.html",
+    buttonText: "Mehr erfahren"
+  },
+
+  {
+    image: "Startseite/Bild3.png",
+    headline: "Neue Straßenbahnen für Schwedt!",
+    link: "Startseite/ÖPNV/ÖPNV.html",
+    buttonText: "Zu unseren neuen Fahrzeugen"
+  }
+
+];
+
+let currentIndex = 0;
+
+const slideshowImg =
+  document.getElementById("slideshow-img");
+
+const slideshowHeadline =
+  document.getElementById("slideshow-headline");
+
+const slideshowLink =
+  document.getElementById("slideshow-link");
+
+const dotsContainer =
+  document.getElementById("slideshow-dots");
+
+
+/* Punkte erzeugen */
+slides.forEach((slide, index) => {
+
+  const dot = document.createElement("div");
+
+  dot.classList.add("dot");
+
+  if(index === 0) {
+    dot.classList.add("active");
+  }
+
+  dot.addEventListener("click", () => {
+
+    currentIndex = index;
+
+    showSlide(currentIndex);
+
+  });
+
+  dotsContainer.appendChild(dot);
+
+});
+
+const dots = document.querySelectorAll(".dot");
+
+
+/* Slide anzeigen */
+function showSlide(index) {
+
+  slideshowImg.style.opacity = 0;
+  slideshowHeadline.style.opacity = 0;
+  slideshowLink.style.opacity = 0;
+
+  setTimeout(() => {
+
+    slideshowImg.src =
+      slides[index].image;
+
+    slideshowHeadline.textContent =
+      slides[index].headline;
+
+    slideshowLink.href =
+      slides[index].link;
+
+    slideshowLink.textContent =
+      slides[index].buttonText;
+
+    slideshowImg.style.opacity = 1;
+    slideshowHeadline.style.opacity = 1;
+    slideshowLink.style.opacity = 1;
+
+    /* Punkte aktualisieren */
+    dots.forEach(dot =>
+      dot.classList.remove("active")
+    );
+
+    dots[index].classList.add("active");
+
+  }, 500);
+
+}
+
+
+/* Automatischer Wechsel */
+setInterval(() => {
+
+  currentIndex++;
+
+  if(currentIndex >= slides.length) {
+    currentIndex = 0;
+  }
+
+  showSlide(currentIndex);
+
+}, 8000);
+
+</script>
+
+</body>
+</html>

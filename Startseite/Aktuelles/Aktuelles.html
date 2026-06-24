@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Abfahrtsanzeige Grünau</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f4f6f8;
+  color: #222;
+}
+
+/* =========================================================
+   HEADER / FOOTER / NAVIGATION
+   Diesen Block kannst du komplett auf andere Seiten kopieren
+   ========================================================= */
+
+/* Oberer und unterer grüner Balken */
+
+.green-bar {
+  width: 100%;
+  background: linear-gradient(135deg, #008b45, #00a050);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px 45px;
+  box-sizing: border-box;
+
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  position: relative;
+  z-index: 10;
+}
+
+/* Footer etwas größer */
+
+.green-bar.bar-bottom {
+  margin-top: 35px;
+  line-height: 1.6;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Navigation */
+
+.nav-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(10px);
+
+  padding: 14px 45px;
+  box-sizing: border-box;
+
+  box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+
+  position: relative;
+  z-index: 9;
+}
+
+/* Logo */
+
+.nav-bar img {
+  height: 54px;
+  width: auto;
+  margin-right: 50px;
+
+  transition: transform 0.2s ease;
+}
+
+.nav-bar img:hover {
+  transform: scale(1.03);
+}
+
+/* Links */
+
+.nav-links {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  gap: 35px;
+}
+
+.nav-links a {
+  position: relative;
+
+  text-decoration: none;
+  color: #333;
+
+  font-weight: 600;
+  font-size: 15px;
+
+  transition: color 0.2s ease;
+}
+
+/* Unterstreichung beim Hover */
+
+.nav-links a::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+
+  width: 0;
+  height: 3px;
+
+  background: #008b45;
+  border-radius: 10px;
+
+  transition: width 0.25s ease;
+}
+
+.nav-links a:hover {
+  color: #008b45;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* =========================================================
+   ENDE HEADER / FOOTER / NAVIGATION
+   ========================================================= */
+/* Lauftext */
+.ticker-container {
+  width: 100%;
+  background-color: #f4f4f4;
+  overflow: hidden;
+  border-top: 2px solid #444;
+  border-bottom: 2px solid #444;
+  position: relative;
+  height: 40px;
+}
+
+.ticker-text {
+  position: absolute;
+  white-space: nowrap;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  animation: ticker linear infinite;
+  animation-duration: 15s;
+}
+
+@keyframes ticker {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ===== NEUES DESIGN FÜR INHALT ===== */
+
+.page-header {
+  text-align: center;
+  padding: 30px 20px 10px;
+}
+
+.page-header h1 {
+  color: #008b45;
+  margin-bottom: 8px;
+}
+
+.page-header h2 {
+  color: #444;
+  font-size: 18px;
+  font-weight: normal;
+  margin-top: 0;
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Abschnittsüberschrift */
+.section-title {
+  background-color: #008b45;
+  color: white;
+  padding: 16px 20px;
+  border-radius: 10px;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 25px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+/* Informationskasten */
+.info-box {
+
+  max-width: 1000px;
+  margin: 30px auto;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+
+  padding: 25px;
+
+  background-color: #f4f4f4;
+
+  border-left: 8px solid #008b45;
+
+  border-radius: 10px;
+
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+
+  text-align: left;
+}
+
+/* Grünes i */
+.info-icon {
+
+  min-width: 50px;
+  height: 50px;
+
+  background-color: #008b45;
+
+  color: white;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Inhalt */
+.info-content {
+  flex: 1;
+}
+
+/* Überschrift */
+.info-title {
+
+  font-size: 24px;
+  font-weight: bold;
+
+  margin-bottom: 10px;
+
+  color: #008b45;
+}
+
+/* Text */
+.info-text {
+
+  font-size: 16px;
+  line-height: 1.5;
+
+  margin-bottom: 20px;
+
+  color: #333;
+}
+
+/* Button */
+.info-button {
+
+  display: inline-block;
+
+  padding: 10px 20px;
+
+  background-color: #008b45;
+
+  color: white;
+
+  text-decoration: none;
+
+  border-radius: 6px;
+
+  font-weight: bold;
+
+  transition: background-color 0.3s;
+}
+
+.info-button:hover {
+
+  background-color: #006d36;
+}
+
+/* ===== MELDUNGSBOX ===== */
+
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background-color: white;
+  padding: 18px;
+  border-radius: 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  transition: 0.2s;
+}
+
+.info-box:hover {
+  transform: translateY(-2px);
+}
+
+/* Liniennummer */
+.line-badge {
+  min-width: 80px;
+  text-align: center;
+  padding: 14px 10px;
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+/* Farben */
+.tram1 {
+  background-color: #0066cc;
+}
+
+.tram2 {
+  background-color: orange;
+}
+
+.tram3 {
+  background-color: red;
+}
+
+.tram4 {
+  background-color: green;
+}
+
+.bus {
+  background-color: purple;
+}
+
+.train {
+  background-color: darkgreen;
+}
+
+/* Inhalt */
+.info-content {
+  flex: 1;
+}
+
+.info-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.info-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #555;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media(max-width: 768px) {
+
+  .nav-bar {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .green-bar {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+  }
+
+  .info-box {
+    flex-direction: column;
+  }
+
+  .line-badge {
+    width: 100%;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ===== ORIGINALER KOPF ===== -->
+
+<div class="green-bar bar-top">
+  <div>Ein Unternehmen der Stadt Schwedt.</div>
+  <div id="datetime"></div>
+</div>
+
+<div class="nav-bar">
+
+  <a href="../../index.html">
+    <img src="../Logo.png" alt="Logo">
+  </a>
+
+  <div class="nav-links">
+    <a href="#">Aktuelles</a>
+    <a href="../Fahrplan/Linienfahrplan.html">Linienfahrpläne und Netzplan</a>
+    <a href="../Abfahrten/Abfahrten.html">Abfahrtsanzeigen</a>
+    <a href="../Verbindungsauskunft/Verbindungsauskunft.html">Verbindungsauskunft</a>
+    <a href="../Tickets/Tickets.html">Tickets / VBB</a>
+    <a href="../ÖPNV/ÖPNV.html">Über den ÖPNV in Schwedt</a>
+  </div>
+
+</div>
+
+<!-- Lauftext -->
+<div class="ticker-container">
+  <div class="ticker-text">
+    Herzlich Willkommen bei den Stadtwerken Schwedt. Hier finden Sie alle wichtigen und aktuellen Informationen rund um Ihren Nahverkehr in Schwedt und Umgebung.
+  </div>
+</div>
+
+<!-- ===== INHALT ===== -->
+
+<div class="page-header">
+  <h1>Aktuelle Informationen</h1>
+
+  <h2>
+    Informationen über Bauarbeiten,
+    Fahrplanänderungen und Neuigkeiten
+    im Stadtverkehr Schwedt.
+  </h2>
+</div>
+
+<!-- Informationskasten -->
+<div class="info-box">
+
+  <!-- Icon -->
+  <div class="info-icon">
+    i
+  </div>
+
+  <!-- Inhalt -->
+  <div class="info-content">
+
+    <div class="info-title">
+      Wichtige Information
+    </div>
+
+    <div class="info-text">
+Hitzewarnung am 26./27./28.06. <br> Wir bitten Sie, im Rahmen Ihrer eigenen Gesundheit, von nicht dringenden Reisen an diesen Tagen abzusehen. Um Ihnen die Fahrt mit uns trotzdem so angenehm wie möglich zu machen, versuchen wir, verstärkt Fahrzeuge mit Klimaanlage einzusetzen. Leider ist es uns nicht möglich, ausschließlich klimatisierte Fahrzeuge auf unseren Linien fahren zu lassen. Wir bitten um Ihr Verständnis.
+
+    </div>
+
+
+
+  </div>
+
+</div>
+
+<div class="content-wrapper">
+
+  <div class="section-title">
+    Baustellen und Fahrplanänderungen
+  </div>
+
+  <!-- ===== BOX ===== -->
+
+  <div class="info-box">
+
+    <div class="line-badge tram1">
+      1
+    </div>
+
+    <div class="info-content">
+
+      <div class="info-title">
+        Bauarbeiten Gleistrasse nach Neustadt
+      </div>
+
+      <div class="info-text">
+        23.05.2026 bis 14.06.2026. Die Linie 1 verkehrt aus der Innenstadt kommend verkürzt bis (H) Grabenower Platz. Zwischen Hauptbahnhof und Neustadt / Industriepark Sehna-Nord verkehrt ein Ersatzbus. Der Umstieg zwischen Straßenbahn und Ersatzbus erfolgt am Hauptbahnhof. Im Nachtverkehr erfolgt der Anschluss zwischen EV1 und 26 an der (H) Warschauer Straße.
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===== BOX ===== -->
+
+  <div class="info-box">
+
+    <div class="line-badge tram2">
+      2
+    </div>
+
+    <div class="info-content">
+
+      <div class="info-title">
+        Bauarbeiten zwischen Nordpark und Cottbusser Allee
+      </div>
+
+      <div class="info-text">
+        23.02.2026 bis voraussichtlich Dezember 2026.
+        Die Linie 2 verkehrt verkürzt bis Nordpark
+        und weiter zur Endstation Kröllwitz.
+        Zwischen Nordpark und Ostbahnhof fährt ein Ersatzverkehr.
+        Es kommt zu längeren Fahrzeiten.
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===== BOX ===== -->
+
+  <div class="info-box">
+
+    <div class="line-badge bus">
+      EV2
+    </div>
+
+    <div class="info-content">
+
+      <div class="info-title">
+        Ersatzverkehr zwischen Nordpark und Ostbahnhof
+      </div>
+
+      <div class="info-text">
+        Der Ersatzverkehr fährt zwischen Nordpark,
+        Cottbusser Allee und Ostbahnhof.
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===== BOX ===== -->
+
+  <div class="info-box">
+
+    <div class="line-badge tram2">
+      2
+    </div>
+
+    <div class="info-content">
+
+      <div class="info-title">
+        Bauarbeiten Gleistrasse nach Neustadt
+      </div>
+
+      <div class="info-text">
+        23.05.2026 bis 14.06.2026. Die Linie 2 verkehrt aus Richtung Kröllwitz kommend verkürzt bis (H) Grabenower Platz. Zwischen Hauptbahnhof und Neustadt verkehrt ein Ersatzbus. Der Umstieg zwischen Straßenbahn und Ersatzbus erfolgt am Hauptbahnhof.
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===== BOX ===== -->
+
+  <div class="info-box">
+
+    <div class="line-badge bus">
+      EV1/2
+    </div>
+
+    <div class="info-content">
+
+      <div class="info-title">
+        Bauarbeiten Gleistrasse nach Neustadt
+      </div>
+
+      <div class="info-text">
+        Ersatzverkehr für die Straßenbahnlinien 1 und 2. Bitte Beachten Sie die teilweise verlegten Standorte der Ersatzbushaltestellen! Am Grabenower Platz besteht KEIN Umstieg zwischen Straßenbahn und Bus.
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===== BOX ===== -->
+
+  <div class="info-box">
+
+    <div class="line-badge tram3">
+      3
+    </div>
+
+    <div class="info-content">
+
+      <div class="info-title">
+        Kraftclubkonzert 22.05.2026
+      </div>
+
+      <div class="info-text">
+        Vor Konzertbeginn, 17:30 bis 19 Uhr: Linie 3 wird abschnittsweise zwischen Hauptbahnhof und Stadion auf einen 5-Minuten-Takt verstärkt. <br> <br> Nach Konzertende, 21:30 bis ca. 23:30 Uhr: Linie 3 wird zwischen Stadion, Hauptbahnhof und Neustadt auf einen 5-Minuten-Takt verstärkt. Linie 6 wird zwischen Stadion und Briesnitz, Sornow verstärkt. Einsatz Linie 40: Stadion > Markt > Ostbahnhof im 10-Minuten-Takt 
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===== BOX ===== -->
+
+  <div class="info-box">
+
+    <div class="line-badge bus">
+      24
+    </div>
+
+    <div class="info-content">
+
+      <div class="info-title">
+        Kanalbauarbeiten in der Rügener Allee
+      </div>
+
+      <div class="info-text">
+        Bis voraussichtlich August 2026 entfällt die Haltestelle
+        Fontanestraße.
+        Eine Ersatzhaltestelle wird in der Südeckerstraße eingerichtet.
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===== BOX ===== -->
+
+  <div class="info-box">
+
+    <div class="line-badge bus">
+      25
+    </div>
+
+    <div class="info-content">
+
+      <div class="info-title">
+        Kanalbauarbeiten in der Rügener Allee
+      </div>
+
+      <div class="info-text">
+        Bis voraussichtlich August 2026 entfällt die Haltestelle
+        Fontanestraße.
+        Eine Ersatzhaltestelle wird in der Südeckerstraße eingerichtet.
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===== BOX ===== -->
+
+  <div class="info-box">
+
+    <div class="line-badge train">
+      RE17
+    </div>
+
+    <div class="info-content">
+
+      <div class="info-title">
+        Bauarbeiten in Schwedt Südbahnhof
+      </div>
+
+      <div class="info-text">
+        07.06.2026 bis vorr. Ende September:
+        Aufgrund von Brücken- und Gleisbauarbeiten kommt es im beschriebenen Zeitraum zu Fahrtausfällen zwischen Jentschwalde und Schwedt. Ein Ersatzverkehr wird eingereichtet. Es kommt zu längeren Fahrtzeiten.
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ===== BOX ===== -->
+
+  <div class="info-box">
+
+    <div class="line-badge train">
+      RB56
+    </div>
+
+    <div class="info-content">
+
+      <div class="info-title">
+        Bauarbeiten in Schwedt Südbahnhof
+      </div>
+
+      <div class="info-text">
+        07.06.2026 bis vorr. Ende September:
+        Aufgrund von Brücken- und Gleisbauarbeiten kommt es im beschriebenen Zeitraum zu Fahrtausfällen zwischen Reesen und Schwedt. Ein Ersatzverkehr wird eingereichtet. Es kommt zu längeren Fahrtzeiten.
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+
+<div class="green-bar bar-bottom">
+
+  <div>
+    Ein Unternehmen der Stadt Schwedt.<br><br>
+    Servicenummer: 03567 16966782
+  </div>
+
+  <div>
+    Öffnungszeiten Kundenzentrum Markt<br>
+    Mo-Fr 08-18 Uhr<br>
+    Sa 09-16 Uhr<br>
+    So geschlossen
+  </div>
+
+</div>
+
+<script>
+
+/* Uhrzeit */
+function updateDateTime() {
+
+  const now = new Date();
+
+  const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  };
+
+  document.getElementById("datetime").textContent =
+    now.toLocaleDateString("de-DE", options);
+}
+
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+</script>
+
+</body>
+</html>

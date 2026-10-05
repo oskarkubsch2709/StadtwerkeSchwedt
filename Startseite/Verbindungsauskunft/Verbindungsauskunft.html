@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Verbindungsauskunft</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f4f6f8;
+  color: #222;
+}
+
+/* =========================================================
+   HEADER / FOOTER / NAVIGATION
+   Diesen Block kannst du komplett auf andere Seiten kopieren
+   ========================================================= */
+
+/* Oberer und unterer grüner Balken */
+
+.green-bar {
+  width: 100%;
+  background: linear-gradient(135deg, #008b45, #00a050);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px 45px;
+  box-sizing: border-box;
+
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  position: relative;
+  z-index: 10;
+}
+
+/* Footer etwas größer */
+
+.green-bar.bar-bottom {
+  margin-top: 35px;
+  line-height: 1.6;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Navigation */
+
+.nav-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(10px);
+
+  padding: 14px 45px;
+  box-sizing: border-box;
+
+  box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+
+  position: relative;
+  z-index: 9;
+}
+
+/* Logo */
+
+.nav-bar img {
+  height: 54px;
+  width: auto;
+  margin-right: 50px;
+
+  transition: transform 0.2s ease;
+}
+
+.nav-bar img:hover {
+  transform: scale(1.03);
+}
+
+/* Links */
+
+.nav-links {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  gap: 35px;
+}
+
+.nav-links a {
+  position: relative;
+
+  text-decoration: none;
+  color: #333;
+
+  font-weight: 600;
+  font-size: 15px;
+
+  transition: color 0.2s ease;
+}
+
+/* Unterstreichung beim Hover */
+
+.nav-links a::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+
+  width: 0;
+  height: 3px;
+
+  background: #008b45;
+  border-radius: 10px;
+
+  transition: width 0.25s ease;
+}
+
+.nav-links a:hover {
+  color: #008b45;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* =========================================================
+   ENDE HEADER / FOOTER / NAVIGATION
+   ========================================================= */
+
+    h1 {
+      margin: 20px 0;
+      color: #008b45;
+      margin-bottom: 4px; /* Abstand unterhalb der Überschrift */
+      text-align: center;
+    }
+
+    h2 {
+      margin: 8px 0;
+      color: #008b45;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+      text-align: center;
+    }
+
+    h3 {
+      margin: 8px 0;
+      color: black;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+      font-weight: bold;
+      font-size: 15px;
+      text-align: center;
+    }
+
+    h4 {
+      margin: 8px 0;
+      color: black;
+      margin-top: 5px; /* Abstand oberhalb des Absatzes */
+      font-size: 15px;
+      text-align: center;
+    }
+
+
+   /* Lauftext-Balken */
+   .ticker-container {
+  width: 100%;
+  background-color: #f4f4f4;   /* gleiche Farbe wie nav-bar */
+  overflow: hidden;
+  border-top: 2px solid #444;
+  border-bottom: 2px solid #444;
+  position: relative;
+  height: 40px; /* Höhe für stabilen Lauftext */
+}
+
+.ticker-text {
+  position: absolute;
+  white-space: nowrap;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  animation: ticker linear infinite;
+  animation-duration: var(--ticker-speed, 15s); /* Geschwindigkeit einstellbar */
+}
+
+/* Kontinuierlicher Lauftext von rechts nach links */
+@keyframes ticker {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Eingabe */
+.connection-box {
+  background: #f4f4f4;
+  padding: 15px;
+  margin: 20px auto;
+  border-radius: 10px;
+  max-width: 600px;
+}
+
+.connection-box input {
+  padding: 8px;
+  margin: 5px;
+}
+
+.connection-box button {
+  padding: 8px 15px;
+  background-color: #008b45;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+/* Ergebnis */
+.connection {
+  background: white;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.route-step {
+  margin-bottom: 10px;
+}
+
+.line-number {
+  font-weight: bold;
+  color: #008b45;
+}
+
+</style>
+</head>
+<body>
+  <!-- Grüner Balken mit Text -->
+  <div class="green-bar bar-top">
+    <div>Ein Unternehmen der Stadt Schwedt.</div>
+    <div id="datetime"></div>
+  </div>
+
+  <!-- Inhaltsverzeichnis mit Logo + Links -->
+  <div class="nav-bar">
+    <!-- Logo -->
+    <a href="../../index.html">
+     <img src="../Logo.png" alt="Logo">
+   </a>
+
+    <!-- Links -->
+    <div class="nav-links">
+      <a href="../Aktuelles/Aktuelles.html">Aktuelles</a>
+      <a href="../Fahrplan/Linienfahrplan.html">Linienfahrpläne und Netzplan</a>
+      <a href="../Abfahrten/Abfahrten.html">Abfahrtsanzeigen</a>
+      <a href="#">Verbindungsauskunft</a>
+      <a href="../Tickets/Tickets.html">Tickets / VBB</a>
+      <a href="../ÖPNV/ÖPNV.html">Über den ÖPNV in Schwedt</a>
+    </div>
+  </div>
+
+   <!-- Lauftext -->
+   <div class="ticker-container">
+     <div class="ticker-text">
+       Herzlich Willkommen bei den Stadtwerken Schwedt. Hier finden Sie alle wichtigen und aktuellen Informationen rund um Ihren Nahverkehr in Schwedt und Umgebung.
+     </div>
+   </div>
+
+<h1>Verbindungsauskunft</h1>
+<h2>Echtzeitinformationen über Ihre Verbindungen.</h2>
+
+
+<div class="connection-box">
+  <input id="start" placeholder="Start">
+  <input id="ziel" placeholder="Ziel">
+  <input id="zeit" placeholder="HH:MM">
+  <button onclick="findRoute()">Suchen</button>
+
+  <div id="result"></div>
+</div>
+
+  <!-- Grüner Balken als Abschluss ganz unten -->
+  <div class="green-bar bar-bottom">
+<div>Ein Unternehmen der Stadt Schwedt.<br><br>Servicenummer: 03567 16966782</div> <br> <div>Öffnungszeiten Kundenzentrum Markt<br>Mo-Fr 08-18 Uhr<br>Sa 09-16 Uhr<br>So geschlossen</div>
+</div>
+
+<script>
+/* Uhrzeit */
+function updateDateTime() {
+  const now = new Date();
+  const options = { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    second: '2-digit' 
+  };
+  document.getElementById("datetime").textContent = 
+    now.toLocaleDateString("de-DE", options);
+}
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+
+// ==========================
+// 🟡 FAHRPLAN (MEHRERE FAHRTEN)
+// ==========================
+const fahrplan = [
+  {
+    linie: "28",
+    richtung: "Gartenstadt",
+    fahrten: [
+      [
+        {name: "Potsdamer Straße",      time: "04:55"},
+        {name: "Aachener Straße",       time: "04:57"},
+        {name: "Eisenbahn Ring",        time: "04:58"},
+        {name: "Hauptbahnhof",          time: "05:00"},
+        {name: "Hermann-Ehlers-Straße", time: "05:01"},
+        {name: "Zwönitzer Straße",      time: "05:03"},
+        {name: "Florastraße",           time: "05:04"},
+        {name: "Pappelallee",           time: "05:06"},
+        {name: "Gartenstadt",           time: "05:07"},
+      ],
+      [
+        {name: "Steigerstraße",         time: "05:17"},
+        {name: "Flensburger Straße",    time: "05:19"},
+        {name: "Bördestraße",           time: "05:20"},
+        {name: "Kölner Ring",           time: "05:22"},
+        {name: "Weststraße",            time: "05:23"},
+        {name: "Schweriner Straße",     time: "05:24"},
+        {name: "Potsdamer Straße",      time: "05:25"},
+        {name: "Aachener Straße",       time: "05:27"},
+        {name: "Eisenbahn Ring",        time: "05:28"},
+        {name: "Hauptbahnhof",          time: "05:30"},
+        {name: "Hermann-Ehlers-Straße", time: "05:31"},
+        {name: "Zwönitzer Straße",      time: "05:33"},
+        {name: "Florastraße",           time: "05:34"},
+        {name: "Pappelallee",           time: "05:36"},
+        {name: "Gartenstadt",           time: "05:37"},
+      ],
+      [
+        {name: "Steigerstraße",         time: "05:47"},
+        {name: "Flensburger Straße",    time: "05:49"},
+        {name: "Bördestraße",           time: "05:50"},
+        {name: "Kölner Ring",           time: "05:52"},
+        {name: "Weststraße",            time: "05:53"},
+        {name: "Schweriner Straße",     time: "05:54"},
+        {name: "Potsdamer Straße",      time: "05:55"},
+        {name: "Aachener Straße",       time: "05:57"},
+        {name: "Eisenbahn Ring",        time: "05:58"},
+        {name: "Hauptbahnhof",          time: "06:00"},
+        {name: "Hermann-Ehlers-Straße", time: "06:01"},
+        {name: "Zwönitzer Straße",      time: "06:03"},
+        {name: "Florastraße",           time: "06:04"},
+        {name: "Pappelallee",           time: "06:06"},
+        {name: "Gartenstadt",           time: "06:07"},
+      ],
+      [
+        {name: "Steigerstraße",         time: "06:17"},
+        {name: "Flensburger Straße",    time: "06:19"},
+        {name: "Bördestraße",           time: "06:20"},
+        {name: "Kölner Ring",           time: "06:22"},
+        {name: "Weststraße",            time: "06:23"},
+        {name: "Schweriner Straße",     time: "06:24"},
+        {name: "Potsdamer Straße",      time: "06:25"},
+        {name: "Aachener Straße",       time: "06:27"},
+        {name: "Eisenbahn Ring",        time: "06:28"},
+        {name: "Hauptbahnhof",          time: "06:30"},
+        {name: "Hermann-Ehlers-Straße", time: "06:31"},
+        {name: "Zwönitzer Straße",      time: "06:33"},
+        {name: "Florastraße",           time: "06:34"},
+        {name: "Pappelallee",           time: "06:36"},
+        {name: "Gartenstadt",           time: "06:37"},
+      ],
+      [
+        {name: "Steigerstraße",         time: "06:47"},
+        {name: "Flensburger Straße",    time: "06:49"},
+        {name: "Bördestraße",           time: "06:50"},
+        {name: "Kölner Ring",           time: "06:52"},
+        {name: "Weststraße",            time: "06:53"},
+        {name: "Schweriner Straße",     time: "06:54"},
+        {name: "Potsdamer Straße",      time: "06:55"},
+        {name: "Aachener Straße",       time: "06:57"},
+        {name: "Eisenbahn Ring",        time: "06:58"},
+        {name: "Hauptbahnhof",          time: "07:00"},
+        {name: "Hermann-Ehlers-Straße", time: "07:01"},
+        {name: "Zwönitzer Straße",      time: "07:03"},
+        {name: "Florastraße",           time: "07:04"},
+        {name: "Pappelallee",           time: "07:06"},
+        {name: "Gartenstadt",           time: "07:07"},
+      ],
+      [
+        {name: "Pappelallee", time: "09:00"},
+        {name: "Gartenstadt", time: "09:10"},
+        {name: "C", time: "09:20"}
+      ]
+    ]
+  },
+  {
+    linie: "22",
+    richtung: "Neustadt Ost",
+    fahrten: [
+      [
+        {name: "Richard-Müller-Ring",   time: "05:17"},
+        {name: "Elsteraue",             time: "05:19"},
+        {name: "Treuburger Straße",     time: "05:20"},
+        {name: "Düsseldorfer Straße",   time: "05:21"},
+        {name: "Hermann-Ehlers-Straße", time: "05:22"},
+        {name: "Jägerhof",              time: "05:23"},
+        {name: "Budapester Straße",     time: "05:25"},
+        {name: "Hauptbahnhof",          time: "05:28"},
+        {name: "Winkelgasse",           time: "05:30"},
+        {name: "Kapellenweg",           time: "05:31"},
+        {name: "Fliederweg",            time: "05:32"},
+        {name: "Wiehbachtal",           time: "05:33"},
+        {name: "Tannenbergerstraße",    time: "05:34"},
+        {name: "Behringstraße",         time: "05:35"},
+        {name: "Neustadt Ost",          time: "05:36"},
+      ]
+    ]
+  },
+  {
+    linie: "3",
+    richtung: "West",
+    fahrten: [
+      [
+        {name: "C", time: "08:25"},
+        {name: "F", time: "08:35"},
+        {name: "E", time: "08:45"}
+      ]
+    ]
+  }
+];
+
+// ==========================
+// Hilfsfunktion
+// ==========================
+function toMin(t) {
+  let [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+// ==========================
+// 🚀 SCHNELLSTE VERBINDUNG
+// ==========================
+function findRoute() {
+  const start = document.getElementById("start").value;
+  const ziel = document.getElementById("ziel").value;
+  const startZeit = toMin(document.getElementById("zeit").value);
+
+  let queue = [];
+  let bestTime = {};
+  let bestPath = null;
+  let bestArrival = Infinity;
+
+  // Startpunkte
+  fahrplan.forEach((line, li) => {
+    line.fahrten.forEach((fahrt, fi) => {
+      fahrt.forEach((stop, si) => {
+        if (stop.name === start && toMin(stop.time) >= startZeit) {
+          queue.push({
+            station: stop.name,
+            time: toMin(stop.time),
+            path: [{
+              type: "start",
+              time: stop.time,
+              station: stop.name
+            }],
+            lineIndex: li,
+            fahrtIndex: fi,
+            stopIndex: si
+          });
+        }
+      });
+    });
+  });
+
+  while (queue.length > 0) {
+
+    queue.sort((a, b) => a.time - b.time);
+    let current = queue.shift();
+
+    if (current.station === ziel) {
+      if (current.time < bestArrival) {
+        bestArrival = current.time;
+        bestPath = current.path;
+      }
+      continue;
+    }
+
+    if (current.time > bestArrival) continue;
+
+let key = current.station + "_" + current.lineIndex + "_" + current.fahrtIndex;
+    if (bestTime[key] && bestTime[key] <= current.time) continue;
+    bestTime[key] = current.time;
+
+    let line = fahrplan[current.lineIndex];
+    let fahrt = line.fahrten[current.fahrtIndex];
+
+    // Weiterfahren
+    for (let i = current.stopIndex + 1; i < fahrt.length; i++) {
+      let next = fahrt[i];
+
+      queue.push({
+        station: next.name,
+        time: toMin(next.time),
+        path: [
+          ...current.path,
+          {
+            type: "ride",
+            line: line.linie,
+            richtung: line.richtung,
+            time: next.time,
+            station: next.name
+          }
+        ],
+        lineIndex: current.lineIndex,
+        fahrtIndex: current.fahrtIndex,
+        stopIndex: i
+      });
+    }
+
+    // Umsteigen
+    fahrplan.forEach((line2, li2) => {
+      line2.fahrten.forEach((fahrt2, fi2) => {
+        fahrt2.forEach((stop2, si2) => {
+
+          if (
+            stop2.name === current.station &&
+            toMin(stop2.time) >= current.time + 2
+          ) {
+            queue.push({
+              station: stop2.name,
+              time: toMin(stop2.time),
+              path: [
+                ...current.path,
+                {
+                  type: "transfer",
+                  station: stop2.name,
+                  time: stop2.time
+                }
+              ],
+              lineIndex: li2,
+              fahrtIndex: fi2,
+              stopIndex: si2
+            });
+          }
+
+        });
+      });
+    });
+  }
+
+  if (bestPath) {
+    displayRoute(bestPath);
+  } else {
+    document.getElementById("result").innerHTML = "Keine Verbindung gefunden";
+  }
+}
+
+// ==========================
+// 📺 ANZEIGE
+// ==========================
+function displayRoute(path) {
+  let html = '<div class="connection">';
+  
+  let lastArrivalTime = null;
+
+  path.forEach((step, index) => {
+
+    // START
+    if (step.type === "start") {
+      html += `<div class="route-step">
+        <b>${step.time}</b> ${step.station}
+      </div>`;
+      lastArrivalTime = step.time;
+    }
+
+    // FAHRT
+    if (step.type === "ride") {
+
+      // Linie anzeigen (immer bei neuer Fahrt)
+      if (index === 0 || path[index - 1].type !== "ride") {
+        html += `<div class="route-step">
+          <span class="line-number">Linie ${step.line}</span> ${step.richtung}
+        </div>`;
+      }
+
+      // Ziel dieser Teilfahrt erkennen
+      let nextStep = path[index + 1];
+
+      if (!nextStep || nextStep.type !== "ride") {
+        html += `<div class="route-step">
+          <b>${step.time}</b> ${step.station}
+        </div>`;
+        lastArrivalTime = step.time;
+      }
+    }
+
+    // UMSTIEG
+    if (step.type === "transfer") {
+
+      let umstieg = toMin(step.time) - toMin(lastArrivalTime);
+
+      html += `<div class="route-step" style="margin:10px 0;">
+        Umstieg ${umstieg} Minuten
+      </div>`;
+
+      // 👉 NEUE ABFAHRT ANZEIGEN (das war vorher dein Problem!)
+      html += `<div class="route-step">
+        <b>${step.time}</b> ${step.station}
+      </div>`;
+    }
+
+  });
+
+  html += "</div>";
+  document.getElementById("result").innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
